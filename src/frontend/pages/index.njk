@@ -1,0 +1,12 @@
+---
+layout: base.template.njk
+title: Eleventy with Vite
+---
+{%- from "./../templates/_setup/macros/component.macro.njk" import component -%}
+
+{{
+    component("main", {
+        portfolio: portfolio,
+        config: config
+    })
+}}

@@ -1,4 +1,4 @@
-# item-helpers.dev
+# robert.berlin
 
 [![Wallaby.js](https://img.shields.io/badge/wallaby.js-powered-blue.svg?style=flat&logo=github)](https://wallabyjs.com/oss/)
 
@@ -9,3 +9,6 @@
 
 # prequisite
 * Node 18.12.0 (used)
+
+
+* Logos: https://github.com/PKief/vscode-material-icon-theme/tree/main/icons

@@ -1,0 +1,27 @@
+{
+
+    "levels": {
+        "advanced": "advanced",
+        "medium": "medium",
+        "basic": "basic",
+        "starter": "starter"
+    },
+    "tech": {
+        "angular": {
+            "name": "Angular",
+            "icon": "angular.svg",
+            "level": "medium",
+            "bg": "white"
+        },
+        "typescript": {
+            "name": "TypeScript",
+            "icon": "typescript.svg",
+            "level": "advanced",
+            "bg": "white"
+        },
+        "figma": {
+            "name": "Figma",
+            "icon": "figma.svg"
+        }
+    }
+}

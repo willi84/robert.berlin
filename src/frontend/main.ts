@@ -1,6 +1,6 @@
 // import 'vite/dynamic-import-polyfill'; // for prod mode
 import './_framework/css/index.css';
+import { createSearch } from './components/molecules/search/search.molecule';
 
-// import { dep } from './dep';
-// const x:string = "foobarxx";
-// console.log(x);
+
+createSearch('data-search', 'skills', '[data-skill]');

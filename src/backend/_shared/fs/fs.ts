@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import {LOG, DEBUG, ERROR} from './../log/log';
 import {command} from './../cmd/cmd';
+import path from 'path';
 
 const hasFail = (error: string, errorMsg: string) => {
   if (error) {
@@ -90,4 +91,20 @@ export const getFileList = (path: string) => {
     files.push(file);
   });
   return files;
+}
+
+export function readFilesRecursively(dir: string, fileList: any[] = []): any[] {
+  const files = fs.readdirSync(dir);
+
+  files.forEach(file => {
+      const filePath = path.join(dir, file);
+      if (fs.statSync(filePath).isDirectory()) {
+          readFilesRecursively(filePath, fileList);
+          fileList.push({ path: filePath, type: 'folder'});
+      } else {
+          fileList.push({ path: filePath, type: 'file'});
+      }
+  });
+
+  return fileList;
 }

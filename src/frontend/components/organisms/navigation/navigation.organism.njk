@@ -5,59 +5,41 @@
 {% set tag = params.tag %}
 
 
-<div id="menu" class="padding-sidebar bg-medium shadow-left" data-menu>
-    <p class="color-primary margin-top-m margin-bottom-m fst-italic fsi-0-875">{{ VARS.description }}</p>
-
-    <nav class="margin-bottom-l" aria-labelledby="nav">
-      <h2 class="margin-bottom-s fsi-1-25" id="nav">Tags</h2>
-      <ol class="nav">
-        {% for navTag in tag.tags %}
-          <li class="margin-top-xs margin-bottom-xs neg-margin-left-m neg-margin-right-m">
-            <a
-            href="{{ navTag.slug | route({ listIsSortedBy: renderData.listIsSortedBy }) }}"
-            {% if tag.slug == navTag.slug %} aria-current="page" {% endif %}
-          >
-              {{navTag.name}}
-            </a>
-            <div class="nav-tagCount">{{navTag.items.length }}</div>
-          </li>
-        {% endfor %}
-      </ol>
-    </nav>
-
-    {% if vars.isProduction %}
-      <div id="carbon-container"></div>
-    {% endif %}
-
-    <div class="fsi-0-875 margin-top-l">
-      <p class="margin-bottom-xs">Brought to you by {{ VARS.author }}</p>
-
-      {# LINKS #}
-      <p class="margin-bottom-l">(
-        {% for link in VARS.links %}
-          {{
-            component("link", {
-              class: "color-primary",
-              text: link.text,
-              link: link.link ,
-              aria_label: link.aria_label
-            })
-          }} {% if not loop.last %}, {% endif %}
-          {% endfor %}
-      )</p>
-        {# contributer/mainter compoennt #}
-      <p class="margin-bottom-s">and <strong>{{ tag.contributors.length }}</strong> lovely people:</p>
-      <ul class="inline-list">
-        {% for contributor in tag.contributors %}
-          <li class="neg-margin-right-s">
-            {{
-              component("profile", {
-                "item": contributor,
-                "type": "github"
-              })
-            }}
-          </li>
-        {% endfor %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" href="#">Home</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Link</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Dropdown
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="#">Action</a></li>
+            <li><a class="dropdown-item" href="#">Another action</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Something else here</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled">Disabled</a>
+        </li>
       </ul>
+      <form class="d-flex" role="search">
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form>
+
+      
     </div>
   </div>
+</nav>

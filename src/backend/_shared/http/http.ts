@@ -69,75 +69,80 @@ export const getHttpItem = (input: string): HTTPStatusBase => {
 
 }
 
-const getHTTPStatus = (url: string): HTTPStatusBase => {
+const getHTTPStatus = (url: string, timeout?: number): HTTPStatusBase => {
+    // const timeoutConfig = timeout? CURL_CONFIG_STATUS.replace(/(\d*\.\d*)/, timeout.toString()) : CURL_CONFIG_STATUS;
+    // console.log(timeoutConfig)
     const status = command(`curl -I ${url} ${CURL_CONFIG_STATUS}`);
     const httpItem = getHttpItem(status);
     return httpItem;
 }
 
-export const getHttpStatus = (url: string, forwarding = false) => {
-    const initialUrl = url;
-    const maxRedirects = 5;
-    let redirects = 0;
-    if(forwarding){
-        while(forwarding){
-            redirects++;
-            if(redirects > maxRedirects){
-                LOG(ERROR, `max redirects reached for ${url}`);
-                return '0';
-            }
-            // TODO: check valid url
-            const httpItem = getHTTPStatus(url);
-            const location = httpItem['location'];
-            if(location){
-                url = location;
-            } else {
-                forwarding = false;
-                const status = parseInt(httpItem['status'], 10);
-                if(status >= 200 && status < 400){
-                    LOG(OK, `🌎 [HTTP-CHECK]: ${status} for ${initialUrl}`);
-                } else {
-                    LOG(ERROR, `🌎 [HTTP-CHECK]: ${status} for ${initialUrl}`);
-                }
-                return httpItem['status'];
-            }
-        }
-    
-    } else {
-        const httpItem = getHTTPStatus(url);
-        return httpItem['status'];
+export const getHttpStatus = (url: string, forwarding = false, timeout?: number) => {
+    const httpItem = getHttpStatusItem(url, forwarding, timeout);
+    if(httpItem['maxRedirectsReached']){
+        LOG(ERROR, `max redirects reached for ${url}`);
     }
+    return httpItem['status'];
 }
-export const getHttpStatusItem = (url: string, forwarding = false) => {
+export const getHttpStatusItem = (url: string, forwarding = false, timeout?: number): HTTPStatusBase => {
     const initialUrl = url;
     const maxRedirects = 5;
     let redirects = 0;
     if(forwarding){
         while(forwarding){
-            redirects++;
-            const httpItem = getHTTPStatus(url);
+            redirects += 1;
+            const httpItem = getHTTPStatus(url, timeout);
             if(redirects > maxRedirects){
+                httpItem['maxRedirectsReached'] = 'true';
+                httpItem['lastStatus'] = httpItem['status'];
+                httpItem['status'] = '0';
+                httpItem['redirects'] = `${redirects}`;
+                httpItem['lastLocation'] = url;
+                httpItem['initialUrl'] = initialUrl;
                 LOG(ERROR, `max redirects reached for ${url}`);
                 return httpItem;
-            }
-            // TODO: check valid url
-            const location = httpItem['location'];
-            if(location){
-                url = location;
             } else {
-                forwarding = false;
-                const status = parseInt(httpItem['status'], 10);
-                if(status >= 200 && status < 400){
-                    LOG(OK, `🌎 [HTTP-CHECK]: ${status} for ${initialUrl}`);
+                // TODO: check valid url
+                const location = httpItem['location'];
+                if(location){
+                    url = location;
                 } else {
-                    LOG(ERROR, `🌎 [HTTP-CHECK]: ${status} for ${initialUrl}`);
+                    forwarding = false;
+                    // const status = parseInt(httpItem['status'], 10);
+                    // if(status >= 200 && status < 400){
+                    //     LOG(OK, `🌎 [HTTP-CHECK]: ${status} for ${initialUrl}`);
+                    // } else {
+                    //     LOG(ERROR, `🌎 [HTTP-CHECK]: ${status} for ${initialUrl}`);
+                    // }
+                    httpItem['initialUrl'] = initialUrl; // TODO: testing
+                    httpItem['lastLocation'] = url; // TODO: testing
+                    httpItem['redirects'] = `${redirects}`;
+                    return httpItem;
                 }
-                return httpItem;
             }
         }
     
     } else {
-        const httpItem = getHTTPStatus(url);
+        const httpItem = getHTTPStatus(url, timeout);
+        httpItem['lastLocation'] = url;
         return httpItem;
     }
+    return {} as HTTPStatusBase;
+}
+
+export const getConnectionTime = (url: string): string => {
+    // return just time
+    const start = new Date();
+    const status = command(`curl -Z -w "%{time_total}" -o /dev/null -s -I ${url}`);
+    // const status = command(`curl -o /dev/null -s -w '%{time_total}\\n' ${url}`);
+    // const status = command(`curl -o /dev/null -s -w 'time_connect: %{time_connect}\\ntime_starttransfer: %{time_starttransfer}\\ntime_total: %{time_total}\\n' ${url}`);
+    // const status = command(`curl -o /dev/null -s -w 'time_connect: %{time_connect}\\ntime_starttransfer: %{time_starttransfer}\\ntime_total: %{time_total}\\n' ${url}`);
+    // const lines = status.split('\n');
+    // const connectionTime = lines.map(line => {
+    //     const item = splitLine(line);
+    //     return item;
+    // });
+    // return `${status} (${new Date().getTime() - start.getTime()}ms)`;
+    return status;
+    // return parseFloat(status);
 }

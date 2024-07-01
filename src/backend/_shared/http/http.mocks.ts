@@ -74,7 +74,7 @@ export const MOCKED_URLS = {
         step3: `http://${DOMAIN_6}/xx/`,
         step4: `https://${DOMAIN_6}/xx/`,
         step5: `https://www.${DOMAIN_6}/xx/`,
-        step6: `https://www.${DOMAIN_6.replace('.de', '.com')}/xx/`,
+        step6: `https://www.${DOMAIN_6.replace('.de', '.com')}/xx/`
     }
 }
 
@@ -165,7 +165,7 @@ export const MOCKED_HTTP_STATUS = {
             ${STATUS.HTTP_404}
         `,
     },
-    HTTP_404_MAX: {
+    HTTP_404_FORWARD_MAX: {
         step1: `
             ${STATUS.HTTP_301}
             Location: ${DOMAIN_6}/xx/
