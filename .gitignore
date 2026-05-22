@@ -1,0 +1,11 @@
+node_modules
+coverage
+.DS_Store
+_site
+test.json
+figma.json
+tmp/
+.vscode/
+# ignore generated output
+src/_data/meta.json
+repos.json
