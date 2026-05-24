@@ -1,6 +1,6 @@
 @import './components/_variables.css';
 @import './deprecated.css';
-@import './portfolio.css';
+@import './../../components/organisms/portfolio/portfolio.css';
 /* @import './../../pages/portfolio/portfolio.css'; */
 /* @import './components/_fonts.css';
 @import './../../components/molecules/search/search.molecule.css';
@@ -14,8 +14,8 @@
 
 
 body{
-    background-color: green;
+    /* background-color: green; */
     /* background-color: var(--bg-color-primary); */
-    color: white;
+    /* color: white; */
     font-family:monospace;
 }

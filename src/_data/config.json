@@ -1,7 +1,0 @@
-{
-    "status": {
-        "green": "text-bg-success",
-        "yellow": "text-bg-warning",
-        "gray": "text-bg-secondary"
-    }
-}
