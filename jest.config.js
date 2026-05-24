@@ -23,7 +23,7 @@ module.exports = {
     },
     testEnvironment: 'jsdom',
     setupFilesAfterEnv: [
-        '<rootDir>/src/backend/_shared/test_lib/customMatcher/toContainItem/toContainItem.ts'
+        // '<rootDir>/src/backend/_shared/test_lib/customMatcher/toContainItem/toContainItem.ts'
     ],
     collectCoverage: true,
     collectCoverageFrom: [

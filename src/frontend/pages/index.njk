@@ -4,43 +4,463 @@ title: Welcome to robert.berlin
 navigation: true
 footer: true
 ---
-{%- from "./../templates/_setup/macros/component.macro.njk" import component -%}
 
-{# <div class="links">
-    <ul>
-        <li><img src="./assets/twitter.svg"><a href="https://twitter.com/robertspd" target="_blank">Twitter</a></li>
-        <li><img src="./assets/github.svg"><a href="https://github.com/willi84/" target="_blank">Github</a></li>
-        <li><a href="https://de.linkedin.com/in/robertwillemelis" target="_blank">Linkedin</a></li>
-        <li><a href="https://www.xing.com/profile/Robert_Willemelis" target="_blank">XING</a></li>
-    </ul>
-</div> #}
-<div class="container my-5 text-center">
-    {% for link in main.links %}
-    {% set disabled = (link.disabled is defined and link.disabled == true) or (link.url is not defined) %}
-        {{
-            component("button_link", {
-                "type": link.type or "link",
-                "text": link.text,
-                "url": link.url,
-                "image_before": link.image_before,
-                "image_after": link.image_after,
-                "size": link.size,
-                "target": link.target,
-                "disabled": disabled
-            })
-        }}
-    {% endfor %}
-</div>
-<div class="flex">
-    {# <img width="1200" height="800" id="logo" src="./assets/logo.jpg" /> #}
-    {{
-           component("image", {
-             image: main.logo.src,
-             class: "",
-             alt_prefix: main.logo.alt,
-             width: "1200",
-             height: "auto",
-             lazy: true
-           })
-         }}
-</div>
+
+
+{% set categories = all.categories | default([]) %}
+{% set statusClasses = all.configuration.status | default({}) %}
+{% set categoryLabels = {
+    projects: 'Projekte',
+    hackathons: 'Hackathons',
+    conferences: 'Konferenzen',
+    workshops: 'Workshops'
+} %}
+
+<section class="portfolio-shell" data-portfolio data-view="cards" data-theme="dark">
+    <div class="container py-4 py-lg-5">
+        <header class="portfolio-header mb-4">
+            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <a class="portfolio-logo" href="/" aria-label="Startseite">
+                        <img src="https://bahn.dev/assets/logo.svg" alt="Portfolio Logo" loading="lazy">
+                    </a>
+                    <div>
+                        <p class="portfolio-kicker mb-1">~/portfolio</p>
+                        <h1 class="portfolio-title mb-1">Robert Willemelis</h1>
+                        <p class="portfolio-subtitle mb-0">Projekte, Hackathons, Konferenzen und Workshops.</p>
+                    </div>
+                </div>
+
+                <div class="portfolio-actions d-flex flex-wrap gap-2">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Ansicht wechseln">
+                        <button class="btn btn-outline-light active" type="button" data-view-button="cards">▦ Cards</button>
+                        <button class="btn btn-outline-light" type="button" data-view-button="list">☰ Liste</button>
+                    </div>
+
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Theme
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><button class="dropdown-item" type="button" data-theme-button="light">Hell</button></li>
+                            <li><button class="dropdown-item" type="button" data-theme-button="dark">Dunkel</button></li>
+                            <li><button class="dropdown-item" type="button" data-theme-button="green">Grün</button></li>
+                            <li><button class="dropdown-item" type="button" data-theme-button="blue">Blau</button></li>
+                            <li><button class="dropdown-item" type="button" data-theme-button="red">Rot</button></li>
+                            <li><button class="dropdown-item" type="button" data-theme-button="yellow">Gelb</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <nav class="portfolio-toolbar mb-4" aria-label="Portfolio Filter">
+            <div class="row g-3 align-items-center">
+                <div class="col-12 col-lg-5">
+                    <label class="visually-hidden" for="portfolio-search">Portfolio durchsuchen</label>
+                    <input
+                        id="portfolio-search"
+                        class="form-control portfolio-input"
+                        type="search"
+                        placeholder="grep: Titel, Ort, Status, Tags …"
+                        autocomplete="off"
+                        data-search-input>
+                </div>
+                <div class="col-12 col-md-5 col-lg-3">
+                    <label class="visually-hidden" for="portfolio-sort">Sortierung</label>
+                    <select id="portfolio-sort" class="form-select portfolio-input" data-sort-select>
+                        <option value="date-desc">date --desc</option>
+                        <option value="date-asc">date --asc</option>
+                        <option value="title-asc">title --asc</option>
+                        <option value="title-desc">title --desc</option>
+                        <option value="status-asc">status --asc</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-7 col-lg-4">
+                    <div class="portfolio-filter-scroll d-flex gap-2 justify-content-lg-end" data-category-filter>
+                        <button class="btn btn-sm portfolio-filter active" type="button" data-filter-button="all">
+                            Alle <span>{{ categories | length }}</span>
+                        </button>
+                        {% for category in categories %}
+                            <button class="btn btn-sm portfolio-filter" type="button" data-filter-button="{{ category }}">
+                                {{ categoryLabels[category] | default(category) }} <span>{{ all.data[category] | length }}</span>
+                            </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        {% for category in categories %}
+            <section class="portfolio-category mb-5" data-category-section="{{ category }}">
+                <div class="portfolio-category-head d-flex align-items-end justify-content-between gap-3 mb-3">
+                    <div>
+                        <p class="portfolio-kicker mb-1">cat {{ loop.index }}</p>
+                        <h2 class="h4 mb-0">{{ categoryLabels[category] | default(category) }}</h2>
+                    </div>
+                    <span class="portfolio-count">{{ all.data[category] | length }} items</span>
+                </div>
+
+                <div class="portfolio-grid">
+                    {% for item in all.data[category] %}
+                        {% set title = item.title | default(item['🔑name']) | default('Ohne Titel') %}
+                        {% set name = item['🔑name'] | default(title) %}
+                        {% set icon = item['🖼️'] | default('') %}
+                        {% set screenshot = item.screenshot | default('') %}
+                        {% set description = item.description | default('') %}
+                        {% set status = item.status | default('') %}
+                        {% set tags = item['🏷️ tags'] | default('') %}
+                        {% set location = item['📍location'] | default('') %}
+                        {% set country = item['🌐'] | default('') %}
+                        {% set start = item.start | default('') %}
+                        {% set end = item.end | default('') %}
+                        {% set project = item.project | default('') %}
+                        {% set result = item.ergebnis | default('') %}
+                        {% set role = item.role | default('') %}
+                        {% set conductor = item.conductor | default('') %}
+                        {% set type = item.type | default('') %}
+                        {% set url = item.url | default(item.website) | default('') %}
+                        {% set code = item.code | default(item.github) | default('') %}
+                        {% set pinned = item['📌'] == 'TRUE' %}
+                        {% set statusClass = statusClasses[status] | default('text-bg-secondary') %}
+                        {% set searchValue = (category ~ ' ' ~ title ~ ' ' ~ name ~ ' ' ~ description ~ ' ' ~ status ~ ' ' ~ tags ~ ' ' ~ location ~ ' ' ~ country ~ ' ' ~ project ~ ' ' ~ result ~ ' ' ~ role ~ ' ' ~ conductor ~ ' ' ~ type) | lower %}
+
+                        <article
+                            class="portfolio-item{% if pinned %} is-pinned{% endif %}"
+                            data-search-item
+                            data-category="{{ category }}"
+                            data-search="{{ searchValue }}"
+                            data-title="{{ title | lower }}"
+                            data-status="{{ status | lower }}"
+                            data-start="{{ start }}"
+                            data-pinned="{% if pinned %}1{% else %}0{% endif %}">
+                            <div class="portfolio-visual">
+                                {% if screenshot %}
+                                    <a href="{{ url or screenshot }}" {% if url %}target="_blank" rel="noopener noreferrer"{% endif %} aria-label="{{ title }} öffnen">
+                                        <img class="portfolio-screenshot" src="{{ screenshot }}" alt="Screenshot von {{ title }}" loading="lazy">
+                                    </a>
+                                {% else %}
+                                    <div class="portfolio-iconbox" aria-hidden="true">
+                                        {% if icon %}
+                                            <img src="{{ icon }}" alt="" loading="lazy">
+                                        {% else %}
+                                            <span>{{ title | first | upper }}</span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="portfolio-content">
+                                <div class="portfolio-item-top">
+                                    <div class="min-w-0">
+                                        <p class="portfolio-path mb-1">{{ category }}/{{ name | lower | replace(' ', '-') }}</p>
+                                        <h3 class="portfolio-item-title mb-0">{{ title }}</h3>
+                                    </div>
+                                    {% if pinned %}<span class="portfolio-pin" title="Hervorgehoben">📌</span>{% endif %}
+                                </div>
+
+                                <div class="portfolio-badges">
+                                    {% if status %}<span class="badge {{ statusClass }}">{{ status }}</span>{% endif %}
+                                    {% if result %}<span class="badge text-bg-success">🏆 {{ result }}</span>{% endif %}
+                                    {% if tags %}<span class="badge portfolio-muted-badge">{{ tags }}</span>{% endif %}
+                                </div>
+
+                                {% if description %}
+                                    <p class="portfolio-description">{{ description }}</p>
+                                {% endif %}
+
+                                <dl class="portfolio-meta">
+                                    {% if start %}
+                                        <div><dt>date</dt><dd>{{ start }}{% if end %} – {{ end }}{% endif %}</dd></div>
+                                    {% endif %}
+                                    {% if location or country %}
+                                        <div><dt>loc</dt><dd>{{ location }}{% if country %} / {{ country }}{% endif %}</dd></div>
+                                    {% endif %}
+                                    {% if project %}<div><dt>project</dt><dd>{{ project }}</dd></div>{% endif %}
+                                    {% if role %}<div><dt>role</dt><dd>{{ role }}</dd></div>{% endif %}
+                                    {% if conductor %}<div><dt>by</dt><dd>{{ conductor }}</dd></div>{% endif %}
+                                    {% if type %}<div><dt>type</dt><dd>{{ type }}</dd></div>{% endif %}
+                                </dl>
+
+                                <div class="portfolio-links">
+                                    {% if url %}<a class="btn btn-sm portfolio-link" href="{{ url }}" target="_blank" rel="noopener noreferrer">open ↗</a>{% endif %}
+                                    {% if code %}<a class="btn btn-sm portfolio-link" href="{{ code }}" target="_blank" rel="noopener noreferrer">code</a>{% endif %}
+                                    {% if item['pitch-video'] %}<a class="btn btn-sm portfolio-link" href="{{ item['pitch-video'] }}" target="_blank" rel="noopener noreferrer">video</a>{% endif %}
+                                    {% if item['pitch-deck'] %}<a class="btn btn-sm portfolio-link" href="{{ item['pitch-deck'] }}" target="_blank" rel="noopener noreferrer">deck</a>{% endif %}
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endfor %}
+
+        <p class="portfolio-empty d-none" data-search-empty>Keine passenden Einträge gefunden.</p>
+    </div>
+</section>
+
+<style>
+    .portfolio-shell {
+        --pf-bg: #0b0f14;
+        --pf-panel: #111821;
+        --pf-card: #121b25;
+        --pf-card-2: #0f151d;
+        --pf-text: #e6edf3;
+        --pf-muted: #8b949e;
+        --pf-line: rgba(230, 237, 243, .13);
+        --pf-accent: #39ff88;
+        --pf-accent-soft: rgba(57, 255, 136, .12);
+        min-height: 100vh;
+        color: var(--pf-text);
+        background:
+            radial-gradient(circle at 20% 0%, var(--pf-accent-soft), transparent 34rem),
+            linear-gradient(180deg, var(--pf-bg), #06090d 72%);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .portfolio-shell[data-theme="light"] {
+        --pf-bg: #f6f8fa;
+        --pf-panel: #ffffff;
+        --pf-card: #ffffff;
+        --pf-card-2: #f6f8fa;
+        --pf-text: #1f2328;
+        --pf-muted: #57606a;
+        --pf-line: rgba(31, 35, 40, .15);
+        --pf-accent: #24292f;
+        --pf-accent-soft: rgba(36, 41, 47, .09);
+    }
+    .portfolio-shell[data-theme="green"] { --pf-accent: #39ff88; --pf-accent-soft: rgba(57, 255, 136, .14); }
+    .portfolio-shell[data-theme="blue"] { --pf-accent: #58a6ff; --pf-accent-soft: rgba(88, 166, 255, .14); }
+    .portfolio-shell[data-theme="red"] { --pf-accent: #ff5c5c; --pf-accent-soft: rgba(255, 92, 92, .14); }
+    .portfolio-shell[data-theme="yellow"] { --pf-accent: #f7d859; --pf-accent-soft: rgba(247, 216, 89, .16); }
+
+    .portfolio-header,
+    .portfolio-toolbar,
+    .portfolio-item,
+    .portfolio-empty {
+        border: 1px solid var(--pf-line);
+        background: color-mix(in srgb, var(--pf-panel) 88%, transparent);
+        box-shadow: 0 1rem 3rem rgba(0, 0, 0, .18);
+        backdrop-filter: blur(12px);
+    }
+
+    .portfolio-header,
+    .portfolio-toolbar { border-radius: 1.25rem; padding: 1rem; }
+    .portfolio-logo { width: 4rem; height: 4rem; display: grid; place-items: center; border: 1px solid var(--pf-line); border-radius: 1rem; background: var(--pf-card-2); overflow: hidden; }
+    .portfolio-logo img { max-width: 2.75rem; max-height: 2.75rem; object-fit: contain; }
+    .portfolio-kicker,
+    .portfolio-path { color: var(--pf-accent); font-size: .78rem; letter-spacing: .06em; text-transform: lowercase; }
+    .portfolio-title { font-size: clamp(1.8rem, 5vw, 3.5rem); line-height: .95; font-weight: 800; }
+    .portfolio-subtitle { color: var(--pf-muted); }
+    .portfolio-actions .btn,
+    .portfolio-filter,
+    .portfolio-input,
+    .portfolio-link { font-family: inherit; }
+    .portfolio-actions .btn-outline-light { color: var(--pf-text); border-color: var(--pf-line); }
+    .portfolio-actions .btn-outline-light:hover,
+    .portfolio-actions .btn-outline-light.active { color: var(--pf-bg); background: var(--pf-accent); border-color: var(--pf-accent); }
+    .dropdown-menu { font-family: inherit; }
+
+    .portfolio-input { color: var(--pf-text); background: var(--pf-card-2); border: 1px solid var(--pf-line); border-radius: .9rem; }
+    select.portfolio-input { cursor: pointer; }
+    select.portfolio-input option { color: #111; background: #fff; }
+    .portfolio-input:focus { color: var(--pf-text); background: var(--pf-card-2); border-color: var(--pf-accent); box-shadow: 0 0 0 .2rem var(--pf-accent-soft); }
+    .portfolio-input::placeholder { color: var(--pf-muted); }
+    .portfolio-filter-scroll { overflow-x: auto; padding-bottom: .15rem; scrollbar-width: thin; }
+    .portfolio-filter { flex: 0 0 auto; color: var(--pf-text); border: 1px solid var(--pf-line); background: var(--pf-card-2); border-radius: 999px; }
+    .portfolio-filter span { color: var(--pf-muted); }
+    .portfolio-filter:hover,
+    .portfolio-filter.active { color: var(--pf-bg); background: var(--pf-accent); border-color: var(--pf-accent); }
+    .portfolio-filter.active span { color: color-mix(in srgb, var(--pf-bg) 80%, transparent); }
+
+    .portfolio-category-head h2 { color: var(--pf-text); }
+    .portfolio-count { color: var(--pf-muted); border: 1px solid var(--pf-line); border-radius: 999px; padding: .25rem .65rem; font-size: .78rem; }
+    .portfolio-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+    .portfolio-item { display: flex; flex-direction: column; min-width: 0; border-radius: 1.1rem; overflow: hidden; transition: transform .16s ease, border-color .16s ease; }
+    .portfolio-item:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--pf-accent) 60%, var(--pf-line)); }
+    .portfolio-item.is-pinned { border-color: color-mix(in srgb, var(--pf-accent) 70%, var(--pf-line)); }
+    .portfolio-visual { background: var(--pf-card-2); border-bottom: 1px solid var(--pf-line); }
+    .portfolio-visual a { display: block; aspect-ratio: 16 / 9; }
+    .portfolio-screenshot { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+    .portfolio-iconbox { min-height: 8rem; display: grid; place-items: center; }
+    .portfolio-iconbox img { width: 3.25rem; height: 3.25rem; object-fit: contain; filter: drop-shadow(0 0 .75rem var(--pf-accent-soft)); }
+    .portfolio-iconbox span { width: 3.25rem; height: 3.25rem; display: grid; place-items: center; border: 1px solid var(--pf-line); border-radius: 1rem; color: var(--pf-accent); font-size: 1.5rem; font-weight: 800; }
+    .portfolio-content { display: flex; flex-direction: column; flex: 1; gap: .8rem; padding: 1rem; background: var(--pf-card); }
+    .portfolio-item-top { display: flex; justify-content: space-between; gap: .75rem; }
+    .portfolio-item-title { color: var(--pf-text); font-size: 1rem; font-weight: 800; line-height: 1.25; }
+    .portfolio-pin { flex: 0 0 auto; }
+    .portfolio-badges { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .portfolio-muted-badge { color: var(--pf-muted); border: 1px solid var(--pf-line); background: transparent; }
+    .portfolio-description { color: var(--pf-muted); margin: 0; font-size: .9rem; }
+    .portfolio-meta { display: grid; gap: .25rem; margin: 0; color: var(--pf-muted); font-size: .82rem; }
+    .portfolio-meta div { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); gap: .5rem; }
+    .portfolio-meta dt { color: var(--pf-accent); font-weight: 700; }
+    .portfolio-meta dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+    .portfolio-links { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: auto; }
+    .portfolio-link { color: var(--pf-text); border: 1px solid var(--pf-line); background: var(--pf-card-2); border-radius: 999px; }
+    .portfolio-link:hover { color: var(--pf-bg); background: var(--pf-accent); border-color: var(--pf-accent); }
+    .portfolio-empty { color: var(--pf-muted); border-radius: 1rem; padding: 1rem; }
+    .min-w-0 { min-width: 0; }
+
+    .portfolio-shell[data-view="list"] .portfolio-grid { grid-template-columns: 1fr; }
+    .portfolio-shell[data-view="list"] .portfolio-item { flex-direction: row; }
+    .portfolio-shell[data-view="list"] .portfolio-visual { width: 8.5rem; flex: 0 0 8.5rem; border-bottom: 0; border-right: 1px solid var(--pf-line); }
+    .portfolio-shell[data-view="list"] .portfolio-visual a,
+    .portfolio-shell[data-view="list"] .portfolio-iconbox { height: 100%; min-height: 8rem; aspect-ratio: auto; }
+    .portfolio-shell[data-view="list"] .portfolio-description { max-width: 62rem; }
+    .portfolio-shell[data-view="list"] .portfolio-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    @media (max-width: 1199.98px) {
+        .portfolio-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 767.98px) {
+        .portfolio-grid { grid-template-columns: 1fr; }
+        .portfolio-header,
+        .portfolio-toolbar { padding: .85rem; }
+        .portfolio-logo { width: 3.25rem; height: 3.25rem; border-radius: .8rem; }
+        .portfolio-logo img { max-width: 2.2rem; max-height: 2.2rem; }
+        .portfolio-shell[data-view="list"] .portfolio-item { flex-direction: column; }
+        .portfolio-shell[data-view="list"] .portfolio-visual { width: 100%; border-right: 0; border-bottom: 1px solid var(--pf-line); }
+        .portfolio-shell[data-view="list"] .portfolio-meta { grid-template-columns: 1fr; }
+    }
+</style>
+
+<script>
+    (() => {
+        const root = document.querySelector('[data-portfolio]');
+        if (!root) return;
+
+        const searchInput = root.querySelector('[data-search-input]');
+        const sortSelect = root.querySelector('[data-sort-select]');
+        const items = Array.from(root.querySelectorAll('[data-search-item]'));
+        const sections = Array.from(root.querySelectorAll('[data-category-section]'));
+        const filterButtons = Array.from(root.querySelectorAll('[data-filter-button]'));
+        const viewButtons = Array.from(root.querySelectorAll('[data-view-button]'));
+        const themeButtons = Array.from(root.querySelectorAll('[data-theme-button]'));
+        const empty = root.querySelector('[data-search-empty]');
+
+        const storageKey = 'portfolio-ui';
+        const stored = JSON.parse(localStorage.getItem(storageKey) || '{}');
+        let currentCategory = 'all';
+        let currentView = stored.view || 'cards';
+        let currentTheme = stored.theme || 'dark';
+        let currentSort = stored.sort || 'date-desc';
+
+        const save = () => localStorage.setItem(storageKey, JSON.stringify({ view: currentView, theme: currentTheme, sort: currentSort }));
+
+        const applyTheme = () => {
+            root.dataset.theme = currentTheme;
+            document.documentElement.setAttribute('data-bs-theme', currentTheme === 'light' || currentTheme === 'yellow' ? 'light' : 'dark');
+        };
+
+        const applyView = () => {
+            root.dataset.view = currentView;
+            viewButtons.forEach((button) => button.classList.toggle('active', button.dataset.viewButton === currentView));
+        };
+
+        const parseDate = (value) => {
+            if (!value) return Number.NEGATIVE_INFINITY;
+
+            const match = String(value).trim().match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+            if (!match) return Number.NEGATIVE_INFINITY;
+
+            const [, day, month, year] = match;
+            return new Date(Number(year), Number(month) - 1, Number(day)).getTime();
+        };
+
+        const compareText = (a, b, key) => (a.dataset[key] || '').localeCompare(b.dataset[key] || '', 'de', { sensitivity: 'base' });
+
+        const sortItems = () => {
+            const mode = currentSort;
+
+            sections.forEach((section) => {
+                const grid = section.querySelector('.portfolio-grid');
+                if (!grid) return;
+
+                const sectionItems = Array.from(grid.querySelectorAll('[data-search-item]'));
+                sectionItems.sort((a, b) => {
+                    const pinnedDiff = Number(b.dataset.pinned || 0) - Number(a.dataset.pinned || 0);
+                    if (pinnedDiff) return pinnedDiff;
+
+                    if (mode === 'title-asc') return compareText(a, b, 'title');
+                    if (mode === 'title-desc') return compareText(b, a, 'title');
+                    if (mode === 'status-asc') return compareText(a, b, 'status') || compareText(a, b, 'title');
+
+                    const dateA = parseDate(a.dataset.start);
+                    const dateB = parseDate(b.dataset.start);
+
+                    if (mode === 'date-asc') return dateA - dateB || compareText(a, b, 'title');
+                    return dateB - dateA || compareText(a, b, 'title');
+                });
+
+                sectionItems.forEach((item) => grid.appendChild(item));
+            });
+        };
+
+        const applySort = () => {
+            if (sortSelect) sortSelect.value = currentSort;
+            sortItems();
+        };
+
+        const applyFilters = () => {
+            const query = (searchInput?.value || '').trim().toLowerCase();
+            let visibleCount = 0;
+
+            items.forEach((item) => {
+                const matchesCategory = currentCategory === 'all' || item.dataset.category === currentCategory;
+                const matchesSearch = !query || (item.dataset.search || '').includes(query);
+                const visible = matchesCategory && matchesSearch;
+                item.classList.toggle('d-none', !visible);
+                if (visible) visibleCount += 1;
+            });
+
+            sections.forEach((section) => {
+                const hasVisibleItems = section.querySelectorAll('[data-search-item]:not(.d-none)').length > 0;
+                section.classList.toggle('d-none', !hasVisibleItems);
+            });
+
+            filterButtons.forEach((button) => {
+                button.classList.toggle('active', button.dataset.filterButton === currentCategory);
+            });
+
+            empty?.classList.toggle('d-none', visibleCount > 0);
+        };
+
+        filterButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                currentCategory = button.dataset.filterButton || 'all';
+                applyFilters();
+            });
+        });
+
+        viewButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                currentView = button.dataset.viewButton || 'cards';
+                applyView();
+                save();
+            });
+        });
+
+        themeButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                currentTheme = button.dataset.themeButton || 'dark';
+                applyTheme();
+                save();
+            });
+        });
+
+        sortSelect?.addEventListener('change', () => {
+            currentSort = sortSelect.value || 'date-desc';
+            applySort();
+            applyFilters();
+            save();
+        });
+
+        searchInput?.addEventListener('input', applyFilters);
+
+        applyTheme();
+        applyView();
+        applySort();
+        applyFilters();
+    })();
+</script>
