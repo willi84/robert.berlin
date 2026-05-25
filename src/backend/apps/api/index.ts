@@ -8,6 +8,7 @@ const TARGET_ID = "1R6C_CmAt8Z6-fMObyP355mZJM71cQ4dJPXmS-fhk1pQ";
 const TARGET_TAB = "PROJEKTE";
 const OUTPUT_PATH = "src/_data/projects.json";
 const FINAL_PATH = "src/_data/all.json";
+const EMOJI_PATH = "src/_data/emojis.json";
 
 const main = async () => {
     try {
@@ -20,6 +21,12 @@ const main = async () => {
         }
         FS.writeFile(OUTPUT_PATH, result);
         FS.writeFile(FINAL_PATH, getFinalData(result));
+
+        const TABS_EMOJIS = 'EMOJIS';
+        let dataEmojis: any = await getSheetTab(TARGET_ID, TABS_EMOJIS);
+        FS.writeFile(EMOJI_PATH, dataEmojis);
+
+
     } catch (error) {
         const message = error instanceof Error ? error.message : `${error}`;
         LOG.FAIL(`API export failed: ${message}`);

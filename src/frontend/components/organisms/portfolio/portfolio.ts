@@ -1,15 +1,19 @@
-export const createPortfolio = () => {
-const root = document.querySelector('[data-portfolio]');
+import type { $HTMLElement, $string } from '../../../_shared/index.d';
+import { getButtons, getElement, getElements } from '../../../_shared/select/select';
+
+
+export const createPortfolio = (base: any = document) => {
+const root: $HTMLElement = getElement(base as HTMLElement, '[data-portfolio]');
         if (!root) return;
 
-        const searchInput = root.querySelector('[data-search-input]');
-        const sortSelect = root.querySelector('[data-sort-select]');
-        const items = Array.from(root.querySelectorAll('[data-search-item]'));
-        const sections = Array.from(root.querySelectorAll('[data-category-section]'));
-        const filterButtons = Array.from(root.querySelectorAll('[data-filter-button]'));
-        const viewButtons = Array.from(root.querySelectorAll('[data-view-button]'));
-        const themeButtons = Array.from(root.querySelectorAll('[data-theme-button]'));
-        const empty = root.querySelector('[data-search-empty]');
+        const searchInput = getElement<HTMLInputElement>(root, '[data-search-input]');
+        const sortSelect = getElement<HTMLSelectElement>(root, '[data-sort-select]');
+        const items = getElements(root, '[data-search-item]');
+        const sections = getElements(root, '[data-category-section]');
+        const filterButtons = getButtons(root, '[data-filter-button]');
+        const viewButtons = getButtons(root, '[data-view-button]');
+        const themeButtons = getButtons(root, '[data-theme-button]');
+        const empty = getElement(root, '[data-search-empty]');
 
         const storageKey = 'portfolio-ui';
         const stored = JSON.parse(localStorage.getItem(storageKey) || '{}');
@@ -30,7 +34,7 @@ const root = document.querySelector('[data-portfolio]');
             viewButtons.forEach((button) => button.classList.toggle('active', button.dataset.viewButton === currentView));
         };
 
-        const parseDate = (value) => {
+        const parseDate = (value: $string) => {
             if (!value) return Number.NEGATIVE_INFINITY;
 
             const match = String(value).trim().match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
@@ -40,16 +44,17 @@ const root = document.querySelector('[data-portfolio]');
             return new Date(Number(year), Number(month) - 1, Number(day)).getTime();
         };
 
-        const compareText = (a, b, key) => (a.dataset[key] || '').localeCompare(b.dataset[key] || '', 'de', { sensitivity: 'base' });
+        const compareText = (a: HTMLElement, b: HTMLElement, key: string) => (a.dataset[key] || '').localeCompare(b.dataset[key] || '', 'de', { sensitivity: 'base' });
 
         const sortItems = () => {
             const mode = currentSort;
 
             sections.forEach((section) => {
-                const grid = section.querySelector('.portfolio-grid');
+                const grid = getElement(section, '.portfolio-grid');
                 if (!grid) return;
 
-                const sectionItems = Array.from(grid.querySelectorAll('[data-search-item]'));
+                const sectionItems = getElements(grid, '[data-search-item]');
+
                 sectionItems.sort((a, b) => {
                     const pinnedDiff = Number(b.dataset.pinned || 0) - Number(a.dataset.pinned || 0);
                     if (pinnedDiff) return pinnedDiff;
@@ -115,7 +120,7 @@ const root = document.querySelector('[data-portfolio]');
 
         themeButtons.forEach((button) => {
             button.addEventListener('click', () => {
-                currentTheme = button.dataset.themeButton || 'dark';
+                currentTheme = button.dataset.themeButton ?? 'dark';
                 applyTheme();
                 save();
             });

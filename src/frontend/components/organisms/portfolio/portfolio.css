@@ -84,6 +84,7 @@
     .dropdown-menu { font-family: inherit; }
 
     .portfolio-input { color: var(--pf-text); background: var(--pf-card-2); border: 1px solid var(--pf-line); border-radius: .9rem; }
+    .portfolio-sort-select { max-width: 11rem; margin-left: auto; font-size: .85rem; padding-top: .45rem; padding-bottom: .45rem; padding-left: .7rem; padding-right: 2rem; }
     select.portfolio-input { cursor: pointer; }
     select.portfolio-input option { color: #111; background: #fff; }
     .portfolio-input:focus { color: var(--pf-text); background: var(--pf-card-2); border-color: var(--pf-accent); box-shadow: 0 0 0 .2rem var(--pf-accent-soft); }

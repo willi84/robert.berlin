@@ -1,0 +1,99 @@
+---
+layout: base.template.njk
+title: Emoji Search
+navigation: true
+footer: true
+permalink: /emojis/index.html
+---
+
+{% set emojiList = emojis | default([]) %}
+{% set sheetUrl = "https://docs.google.com/spreadsheets/d/" ~ build.SHEET_ID ~ "/edit?gid=" ~ build.EMOJI_TAB %}
+
+
+<section class="container py-4 py-lg-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+            <header class="mb-4">
+                <p class="text-uppercase text-muted mb-2">Example Page</p>
+                <h1 class="mb-2">🔎 Emoji suchen und kopieren</h1>
+                <p class="text-muted mb-0">Suche in Deutsch, Englisch und Tags. Klick auf eine Box kopiert das Emoji.</p>
+            </header>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-3">
+                    <label class="form-label mb-2" for="emoji-search">Suche</label>
+                    <input
+                        id="emoji-search"
+                        class="form-control"
+                        type="search"
+                        placeholder="z. B. coding, suchen, warnung"
+                        autocomplete="off"
+                        data-emoji-search>
+                </div>
+            </div>
+
+            <p class="text-muted small mb-3" data-emoji-count>{{ emojiList | length }} Emojis</p>
+
+            <div class="row g-2" data-emoji-list>
+                {% for emoji in emojiList %}
+                    {% set tags = emoji["🏷️ tags"] | default("") %}
+                    {% set german = emoji["🇩🇪"] | default("") %}
+                    {% set english = emoji["🇬🇧"] | default("") %}
+                    {% set searchValue = (tags ~ " " ~ german ~ " " ~ english) | lower %}
+                    {% set sheetRow = loop.index0 + 2 %}
+                    {% set editUrl = sheetUrl ~ "&range=A" ~ sheetRow %}
+
+                    <div
+                        class="col-4 col-md-3 col-lg-2 col-xl-1"
+                        data-emoji-item
+                        data-search="{{ searchValue }}"
+                        data-emoji-id="{{ sheetRow }}"
+                        data-original-order="{{ loop.index0 }}">
+                        <div
+                            class="position-relative border rounded-3 bg-white"
+                            data-emoji-card
+                            style="aspect-ratio: 1 / 1; min-height: 72px;">
+                            <button
+                                class="btn position-absolute top-50 start-50 translate-middle rounded-3 p-0"
+                                type="button"
+                                data-copy-emoji="{{ emoji.value }}"
+                                aria-label="{{ emoji.value }} kopieren"
+                                style="width: calc(100% - 18px); height: calc(100% - 18px);">
+                                <span
+                                    class="d-flex align-items-center justify-content-center w-100 h-100"
+                                    aria-hidden="true"
+                                    style="font-size: 2rem; line-height: 1;">
+                                    {{ emoji.value }}
+                                </span>
+                                <span
+                                    class="position-absolute top-50 start-50 translate-middle px-2 py-1 rounded-pill bg-success text-white small opacity-0"
+                                    data-copy-feedback
+                                    style="pointer-events: none; transition: opacity 160ms ease;">
+                                    Kopiert
+                                </span>
+                            </button>
+
+                            <span
+                                class="position-absolute start-0 bottom-0 px-2 py-1 text-muted opacity-50"
+                                data-copy-count
+                                style="font-size: 0.6rem; line-height: 1; display: none;">
+                            </span>
+
+                            <a
+                                class="position-absolute end-0 bottom-0 text-decoration-none text-muted"
+                                href="{{ editUrl }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="Zeile {{ sheetRow }} im Google Sheet bearbeiten"
+                                style="font-size: 0.5rem; line-height: 1; padding: 0.2rem 0.3rem; opacity: 0.5">
+                                &nbsp;
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <p class="alert alert-light border mt-4 d-none" data-emoji-empty>Keine Emojis gefunden.</p>
+        </div>
+    </div>
+</section>

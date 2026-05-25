@@ -10,10 +10,11 @@ footer: true
 {% set categories = all.categories | default([]) %}
 {% set statusClasses = all.configuration.status | default({}) %}
 {% set categoryLabels = {
-    projects: 'Projekte',
-    hackathons: 'Hackathons',
-    conferences: 'Konferenzen',
-    workshops: 'Workshops'
+    projects: '🗂️ Projekte',
+    hackathons: '🚀 Hackathons',
+    conferences: '🗓️ Konferenzen',
+    workshops: '🎓 Workshops',
+    tech: '💻 Tech'
 } %}
 
 <section class="portfolio-shell" data-portfolio data-view="cards" data-theme="dark">
@@ -66,9 +67,9 @@ footer: true
                         autocomplete="off"
                         data-search-input>
                 </div>
-                <div class="col-12 col-md-5 col-lg-3">
+                <div class="col-12 col-md-4 col-lg-2">
                     <label class="visually-hidden" for="portfolio-sort">Sortierung</label>
-                    <select id="portfolio-sort" class="form-select portfolio-input" data-sort-select>
+                    <select id="portfolio-sort" class="form-select portfolio-input portfolio-sort-select" data-sort-select>
                         <option value="date-desc">date --desc</option>
                         <option value="date-asc">date --asc</option>
                         <option value="title-asc">title --asc</option>
@@ -76,7 +77,7 @@ footer: true
                         <option value="status-asc">status --asc</option>
                     </select>
                 </div>
-                <div class="col-12 col-md-7 col-lg-4">
+                <div class="col-12 col-md-8 col-lg-5">
                     <div class="portfolio-filter-scroll d-flex gap-2 justify-content-lg-end" data-category-filter>
                         <button class="btn btn-sm portfolio-filter active" type="button" data-filter-button="all">
                             Alle <span>{{ categories | length }}</span>

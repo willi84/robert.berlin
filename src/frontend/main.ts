@@ -1,8 +1,10 @@
 // import 'vite/dynamic-import-polyfill'; // for prod mode
-import './_framework/css/index.css';
+import './_shared/index.css';
 import { createPortfolio } from './components/organisms/portfolio/portfolio';
+import { createEmoji } from './pages/emojis/emojis';
 
 
 (() => {
         createPortfolio();
+        createEmoji();
 })();

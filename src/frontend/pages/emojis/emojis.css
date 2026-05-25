@@ -1,0 +1,11 @@
+[data-emoji-card] {
+    transition: box-shadow 160ms ease, border-color 160ms ease, transform 160ms ease, background-color 160ms ease;
+}
+
+[data-emoji-item]:hover [data-emoji-card],
+[data-emoji-item]:focus-within [data-emoji-card] {
+    background-color: #f8f9ff;
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.18rem rgba(13, 110, 253, 0.18);
+    transform: translateY(-1px);
+}
