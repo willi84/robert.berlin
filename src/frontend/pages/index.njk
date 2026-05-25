@@ -5,6 +5,8 @@ navigation: true
 footer: true
 ---
 
+{%- from "./../templates/_setup/macros/component.macro.njk" import component -%}
+
 
 
 {% set categories = all.categories | default([]) %}
@@ -23,7 +25,16 @@ footer: true
             <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
                 <div class="d-flex align-items-center gap-3">
                     <a class="portfolio-logo" href="/" aria-label="Startseite">
-                        <img src="https://bahn.dev/assets/logo.svg" alt="Portfolio Logo" loading="lazy">
+                        {{
+                            component("image", {
+                                image: main.logo.src,
+                                class: "",
+                                alt_prefix: main.logo.alt,
+                                width: "50%",
+                                height: "auto",
+                                lazy: true
+                            })
+                        }}
                     </a>
                     <div>
                         <p class="portfolio-kicker mb-1">~/portfolio</p>
@@ -37,53 +48,50 @@ footer: true
                         <button class="btn btn-outline-light active" type="button" data-view-button="cards">▦ Cards</button>
                         <button class="btn btn-outline-light" type="button" data-view-button="list">☰ Liste</button>
                     </div>
-
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Theme
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><button class="dropdown-item" type="button" data-theme-button="light">Hell</button></li>
-                            <li><button class="dropdown-item" type="button" data-theme-button="dark">Dunkel</button></li>
-                            <li><button class="dropdown-item" type="button" data-theme-button="green">Grün</button></li>
-                            <li><button class="dropdown-item" type="button" data-theme-button="blue">Blau</button></li>
-                            <li><button class="dropdown-item" type="button" data-theme-button="red">Rot</button></li>
-                            <li><button class="dropdown-item" type="button" data-theme-button="yellow">Gelb</button></li>
-                        </ul>
-                    </div>
+                    {{
+                        component("dropdown", {
+                            values: [ 'light','green', 'red', 'dark', 'blue', 'yellow'],
+                            defaultValue: "dark",
+                            key: "bs-theme",
+                            label: "Theme"
+                        })
+                    }}
+                    
                 </div>
             </div>
         </header>
 
         <nav class="portfolio-toolbar mb-4" aria-label="Portfolio Filter">
             <div class="row g-3 align-items-center">
-                <div class="col-12 col-lg-5">
-                    <label class="visually-hidden" for="portfolio-search">Portfolio durchsuchen</label>
-                    <input
-                        id="portfolio-search"
-                        class="form-control portfolio-input"
-                        type="search"
-                        placeholder="grep: Titel, Ort, Status, Tags …"
-                        autocomplete="off"
-                        data-search-input>
+                <div class="col-12 col-lg-8">
+                    {{
+                        component("search", {
+                            label: "Portfolio durchsuchen",
+                            class: "portfolio-input",
+                            placeholder: "grep: Titel, Ort, Status, Tags …"
+                        })
+                    }}
                 </div>
-                <div class="col-12 col-md-4 col-lg-2">
-                    <label class="visually-hidden" for="portfolio-sort">Sortierung</label>
-                    <select id="portfolio-sort" class="form-select portfolio-input portfolio-sort-select" data-sort-select>
-                        <option value="date-desc">date --desc</option>
-                        <option value="date-asc">date --asc</option>
-                        <option value="title-asc">title --asc</option>
-                        <option value="title-desc">title --desc</option>
-                        <option value="status-asc">status --asc</option>
-                    </select>
+                <div class="col-12 col-lg-4 portfolio-actions">
+                    {{
+                        component("dropdown", {
+                            values: [ 'date-desc','date-asc', 'title-asc', 'title-desc', 'status-asc', 'status-desc'],
+                            defaultValue: "date-desc",
+                            key: "bs-sort",
+                            label: "Sortierung",
+                            sort: "[data-category-section]"
+                        })
+                    }}
                 </div>
-                <div class="col-12 col-md-8 col-lg-5">
-                    <div class="portfolio-filter-scroll d-flex gap-2 justify-content-lg-end" data-category-filter>
-                        <button class="btn btn-sm portfolio-filter active" type="button" data-filter-button="all">
+                {{ categories }}
+                {{ categoryLabels }}
+                <div class="col-12 col-lg-12">
+                    <div class="portfolio-filter-scroll gap-2 justify-content-lg-end" data-category-filter>
+                        <button class="btn btn-sm mb-2 portfolio-filter active" type="button" data-filter-button="all">
                             Alle <span>{{ categories | length }}</span>
                         </button>
                         {% for category in categories %}
-                            <button class="btn btn-sm portfolio-filter" type="button" data-filter-button="{{ category }}">
+                            <button class="btn btn-sm mb-2 portfolio-filter" type="button" data-filter-button="{{ category }}">
                                 {{ categoryLabels[category] | default(category) }} <span>{{ all.data[category] | length }}</span>
                             </button>
                         {% endfor %}

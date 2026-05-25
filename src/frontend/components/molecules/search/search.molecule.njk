@@ -1,0 +1,16 @@
+{#
+    @param {string} class - additional classes for the input element
+    @param {string} placeholder - placeholder text for the search input
+    @param {string} label - label of an input
+#}
+
+{% if params.label is defined %}
+    <label class="visually-hidden" for="main-search">{{params.label}}</label>
+{% endif %}
+    <input
+        id="main-search"
+        class="form-control {{params.class}}"
+        type="search"
+        placeholder="{{params.placeholder}}"
+        autocomplete="off"
+        data-search-input>

@@ -23,6 +23,18 @@
 } */
 
 .portfolio-shell {
+        --pf-bg: #f6f8fa;
+        --pf-panel: #ffffff;
+        --pf-card: #ffffff;
+        --pf-card-2: #f6f8fa;
+        --pf-text: #1f2328;
+        --pf-muted: #57606a;
+        --pf-line: rgba(31, 35, 40, .15);
+        --pf-accent: #24292f;
+        --pf-accent-soft: rgba(57, 255, 136, .14);
+    }
+
+[data-bs-theme="dark"] .portfolio-shell {
         --pf-bg: #0b0f14;
         --pf-panel: #111821;
         --pf-card: #121b25;
@@ -40,7 +52,7 @@
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
 
-    .portfolio-shell[data-theme="light"] {
+    [data-bs-theme="light"] .portfolio-shell {
         --pf-bg: #f6f8fa;
         --pf-panel: #ffffff;
         --pf-card: #ffffff;
@@ -49,12 +61,13 @@
         --pf-muted: #57606a;
         --pf-line: rgba(31, 35, 40, .15);
         --pf-accent: #24292f;
-        --pf-accent-soft: rgba(36, 41, 47, .09);
+        --pf-accent-soft: rgba(57, 255, 136, .14);
+        --bs-btn-color: #04488c;
     }
-    .portfolio-shell[data-theme="green"] { --pf-accent: #39ff88; --pf-accent-soft: rgba(57, 255, 136, .14); }
-    .portfolio-shell[data-theme="blue"] { --pf-accent: #58a6ff; --pf-accent-soft: rgba(88, 166, 255, .14); }
-    .portfolio-shell[data-theme="red"] { --pf-accent: #ff5c5c; --pf-accent-soft: rgba(255, 92, 92, .14); }
-    .portfolio-shell[data-theme="yellow"] { --pf-accent: #f7d859; --pf-accent-soft: rgba(247, 216, 89, .16); }
+    [data-bs-theme="green"] .portfolio-shell { --pf-accent: #39ff88; --pf-accent-soft: rgba(57, 255, 136, .14); }
+    [data-bs-theme="blue"] .portfolio-shell { --pf-accent: #58a6ff; --pf-accent-soft: rgba(88, 166, 255, .14); }
+    [data-bs-theme="red"] .portfolio-shell { --pf-accent: #ff5c5c; --pf-accent-soft: rgba(255, 92, 92, .14); }
+    [data-bs-theme="yellow"] .portfolio-shell { --pf-accent: #f7d859; --pf-accent-soft: rgba(247, 216, 89, .16); }
 
     .portfolio-header,
     .portfolio-toolbar,
@@ -78,10 +91,12 @@
     .portfolio-filter,
     .portfolio-input,
     .portfolio-link { font-family: inherit; }
+
+    /* portfolio actions displays the button */
     .portfolio-actions .btn-outline-light { color: var(--pf-text); border-color: var(--pf-line); }
     .portfolio-actions .btn-outline-light:hover,
     .portfolio-actions .btn-outline-light.active { color: var(--pf-bg); background: var(--pf-accent); border-color: var(--pf-accent); }
-    .dropdown-menu { font-family: inherit; }
+    .dropdown-menu { font-family: inherit; z-index: 3; }
 
     .portfolio-input { color: var(--pf-text); background: var(--pf-card-2); border: 1px solid var(--pf-line); border-radius: .9rem; }
     .portfolio-sort-select { max-width: 11rem; margin-left: auto; font-size: .85rem; padding-top: .45rem; padding-bottom: .45rem; padding-left: .7rem; padding-right: 2rem; }

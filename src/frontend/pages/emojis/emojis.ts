@@ -3,7 +3,7 @@ import { getButtons, getElement, getElements } from '../../_shared/select/select
 
 export const createEmoji = (base: any = document) => {
     const STORAGE_KEY = "emoji-copy-counts";
-    const searchInput = getElement<HTMLInputElement>(base, "[data-emoji-search]");
+    const searchInput = getElement<HTMLInputElement>(base, "[data-search-input]");
     const list = getElement(base, "[data-emoji-list]");
     const items = getElements(base, "[data-emoji-item]");
     const count = getElement(base, "[data-emoji-count]");

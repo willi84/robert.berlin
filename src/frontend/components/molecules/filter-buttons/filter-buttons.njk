@@ -1,0 +1,10 @@
+<div class="portfolio-filter-scroll gap-2 justify-content-lg-end" data-category-filter>
+    <button class="btn btn-sm mb-2 portfolio-filter active" type="button" data-filter-button="all">
+        Alle <span>{{ categories | length }}</span>
+    </button>
+    {% for category in categories %}
+        <button class="btn btn-sm mb-2 portfolio-filter" type="button" data-filter-button="{{ category }}">
+            {{ categoryLabels[category] | default(category) }} <span>{{ all.data[category] | length }}</span>
+        </button>
+    {% endfor %}
+</div>

@@ -6,6 +6,8 @@ footer: true
 permalink: /emojis/index.html
 ---
 
+{%- from "./../../templates/_setup/macros/component.macro.njk" import component -%}
+
 {% set emojiList = emojis | default([]) %}
 {% set sheetUrl = "https://docs.google.com/spreadsheets/d/" ~ build.SHEET_ID ~ "/edit?gid=" ~ build.EMOJI_TAB %}
 
@@ -21,14 +23,12 @@ permalink: /emojis/index.html
 
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-body p-3">
-                    <label class="form-label mb-2" for="emoji-search">Suche</label>
-                    <input
-                        id="emoji-search"
-                        class="form-control"
-                        type="search"
-                        placeholder="z. B. coding, suchen, warnung"
-                        autocomplete="off"
-                        data-emoji-search>
+                    {{
+                        component("search", {
+                            label: "Suche",
+                            placeholder: "z. B. coding, suchen, warnung"
+                        })
+                    }}
                 </div>
             </div>
 
