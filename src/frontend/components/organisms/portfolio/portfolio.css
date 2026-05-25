@@ -42,7 +42,7 @@
         --pf-text: #e6edf3;
         --pf-muted: #8b949e;
         --pf-line: rgba(230, 237, 243, .13);
-        --pf-accent: #39ff88;
+        --pf-accent: #02b148;
         --pf-accent-soft: rgba(57, 255, 136, .12);
         min-height: 100vh;
         color: var(--pf-text);
@@ -64,10 +64,10 @@
         --pf-accent-soft: rgba(57, 255, 136, .14);
         --bs-btn-color: #04488c;
     }
-    [data-bs-theme="green"] .portfolio-shell { --pf-accent: #39ff88; --pf-accent-soft: rgba(57, 255, 136, .14); }
+    [data-bs-theme="green"] .portfolio-shell { --pf-accent: #02b148; --pf-accent-soft: rgba(57, 255, 136, .14); }
     [data-bs-theme="blue"] .portfolio-shell { --pf-accent: #58a6ff; --pf-accent-soft: rgba(88, 166, 255, .14); }
     [data-bs-theme="red"] .portfolio-shell { --pf-accent: #ff5c5c; --pf-accent-soft: rgba(255, 92, 92, .14); }
-    [data-bs-theme="yellow"] .portfolio-shell { --pf-accent: #f7d859; --pf-accent-soft: rgba(247, 216, 89, .16); }
+    [data-bs-theme="yellow"] .portfolio-shell { --pf-accent: #f0ca31; --pf-accent-soft: rgba(247, 216, 89, .16); }
 
     .portfolio-header,
     .portfolio-toolbar,
