@@ -39,7 +39,8 @@ footer: true
                     <div>
                         <p class="portfolio-kicker mb-1">~/portfolio</p>
                         <h1 class="portfolio-title mb-1">Robert Willemelis</h1>
-                        <p class="portfolio-subtitle mb-0">Projekte, Hackathons, Konferenzen und Workshops.</p>
+                        <p class="portfolio-subtitle mb-0">Projekte, Hackathons, Konferenzen und Workshops.  <span class="badge bg-warning">in Arbeit</span></p>
+                        <p class="portfolio-subtitle mb-0"><small style="font-size: 8px">Liste wird aktuell ergänzt...</small></p>
                     </div>
                 </div>
 
@@ -83,8 +84,6 @@ footer: true
                         })
                     }}
                 </div>
-                {{ categories }}
-                {{ categoryLabels }}
                 <div class="col-12 col-lg-12">
                     <div class="portfolio-filter-scroll gap-2 justify-content-lg-end" data-category-filter>
                         <button class="btn btn-sm mb-2 portfolio-filter active" type="button" data-filter-button="all">
@@ -104,7 +103,7 @@ footer: true
             <section class="portfolio-category mb-5" data-category-section="{{ category }}">
                 <div class="portfolio-category-head d-flex align-items-end justify-content-between gap-3 mb-3">
                     <div>
-                        <p class="portfolio-kicker mb-1">cat {{ loop.index }}</p>
+                        {# <p class="portfolio-kicker mb-1">cat {{ loop.index }}</p> #}
                         <h2 class="h4 mb-0">{{ categoryLabels[category] | default(category) }}</h2>
                     </div>
                     <span class="portfolio-count">{{ all.data[category] | length }} items</span>
