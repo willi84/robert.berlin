@@ -24,6 +24,8 @@ import { translateFilter } from './src/setup/filters/translate.filter.js';
 import { lenFilter } from './src/setup/filters/len.filter.js';
 import { safeParam } from './src/setup/filters/safeParam.filter.js';
 import { safeParamIf } from './src/setup/filters/safeParamIf.filter.js';
+import { isUpcoming } from './src/setup/filters/isUpcoming.filter.js';
+import { flagFilter } from './src/setup/filters/flag.filter.js';
 
 // shortcodes (JS)
 import {
@@ -82,6 +84,8 @@ eleventyConfig.on('eleventy.after', async () => {
     eleventyConfig.addNunjucksFilter('len', lenFilter);
     eleventyConfig.addNunjucksFilter('safeParam', safeParam);
     eleventyConfig.addNunjucksFilter('safeParamIf', safeParamIf);
+    eleventyConfig.addNunjucksFilter('isUpcoming', isUpcoming);
+    eleventyConfig.addNunjucksFilter('flag', flagFilter);
 
     // vite shortcodes
     eleventyConfig.addNunjucksAsyncShortcode('viteScriptTag', viteScriptTag);
