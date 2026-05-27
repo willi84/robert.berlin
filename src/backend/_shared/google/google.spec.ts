@@ -1,4 +1,4 @@
-import { convertText2JSON, getCellValue, getHeaders, getProjects, hasCols, mapRowToItem } from './google';
+import { convertText2JSON, filterItems, getCellValue, getHeaders, getProjects, hasCols, mapRowToItem } from './google';
 
 const SAMPLE_JSON = {
     "version":"0.6",
@@ -147,4 +147,25 @@ describe('getProjects()', () => {
         expect(FN(emptyText)).toEqual([]);
     });
 });
-
+describe('filterItems()', () => {
+    const FN = filterItems;
+    it('should filter items based on filter columns', () => {
+        const projects = [
+            { name: 'Project A', status: 'active', location: 'Berlin' },
+            { name: 'Project B', status: 'inactive', location: 'Hamburg' },
+        ];
+        const filterColumns = ['status'];
+        expect(FN(projects, filterColumns)).toEqual([
+            { name: 'Project A', location: 'Berlin' },
+            { name: 'Project B', location: 'Hamburg' },
+        ]);
+    });
+    it('should return all items if filter columns is empty', () => {
+        const projects = [
+            { name: 'Project A', status: 'active', location: 'Berlin' },
+            { name: 'Project B', status: 'inactive', location: 'Hamburg' },
+        ];
+        const filterColumns: string[] = [];
+        expect(FN(projects, filterColumns)).toEqual(projects);
+    });
+});

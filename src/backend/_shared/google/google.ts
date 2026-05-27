@@ -1,3 +1,4 @@
+import { AnyAaaaRecord } from 'node:dns';
 import { LOG } from '../log/log';
 import type { GoogleSheetResponse, ProjectItem, SheetCell, SheetRow } from "./google.d";
 
@@ -82,14 +83,7 @@ const getSheetText = async (url: string): Promise<string> => {
     }
     return response.text();
 };
-
-export const getSheetTab = async (id: string, tab: string, filterColumns: string[]): Promise<ProjectItem[]> => {
-    const SHEET_URL = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?sheet=${encodeURIComponent(tab)}&tqx=out:json`;
-    const rawText: string = await getSheetText(SHEET_URL);
-    const projects: ProjectItem[] = await getProjects(rawText)
-        // filter empty items (where all values are empty strings)
-        .filter((item) => Object.values(item).some((value) => value.trim() !== ""))
-    LOG.OK(`Fetched ${projects.length} items from tab "${tab}"`);
+export const filterItems = (projects: any[], filterColumns: string[]) => {
     const newProjects = [];
     for(const project of projects){
         const newItem: any = {};
@@ -105,6 +99,20 @@ export const getSheetTab = async (id: string, tab: string, filterColumns: string
             }
             newProjects.push(newItem);
         }
+    }
+    return newProjects;
+}
+
+export const getSheetTab = async (id: string, tab: string, filterColumns: string[]): Promise<ProjectItem[]> => {
+    const SHEET_URL = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?sheet=${encodeURIComponent(tab)}&tqx=out:json`;
+    const rawText: string = await getSheetText(SHEET_URL);
+    const projects: ProjectItem[] = await getProjects(rawText)
+        // filter empty items (where all values are empty strings)
+        .filter((item) => Object.values(item).some((value) => value.trim() !== ""))
+    LOG.OK(`Fetched ${projects.length} items from tab "${tab}"`);
+    const newProjects = filterItems(projects, filterColumns);
+    if(JSON.stringify(projects) !== JSON.stringify(newProjects)){
+        LOG.INFO(`Filtered columns: ${filterColumns.join(', ')} for tab "${tab}"`);
     }
     return newProjects.filter(item=> {
         // specific case because pin has always value
