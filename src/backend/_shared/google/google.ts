@@ -77,7 +77,6 @@ export const getProjects = (rawText: string): ProjectItem[] => {
 
 const getSheetText = async (url: string): Promise<string> => {
     const response = await fetch(url);
-    console.log(url);
     if (!response.ok) {
         throw new Error(`Google Sheet request failed with status ${response.status}`);
     }

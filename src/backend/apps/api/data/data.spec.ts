@@ -1,4 +1,5 @@
-import { fixImages, getFinalData, getTabValue, setTabValue } from './data';
+import { LOG } from '../../../_shared/log/log';
+import { checkKeys, doCheck, fixImages, getFinalData, getTabValue, setTabValue } from './data';
 
 const INPUT = {
     "📍 LOCATIONS": [
@@ -179,4 +180,28 @@ describe('getFinalData()', () => {
     it('should return the final data structure', () => {
         expect(FN(EXPECTED)).toEqual(EXPECTED_FINAL);
     });
+});
+describe('doCheck()', () => {
+    const FN = doCheck;
+    it('should compare two Array of strings and return true if all values of the second array are present in the first array', () => {
+        expect(FN(['a', 'b', 'c'], ['a', 'b'])).toBe(true);
+        expect(FN(['a', 'b', 'c'], ['a', 'd'])).toBe(false);
+        expect(FN(['a', 'b', 'c'], ['d'])).toBe(false);
+        expect(FN([], ['a'])).toBe(false);
+        expect(FN(['a'], [])).toBe(false);
+    });
+    it('should return a fail message if arrays differ', () => {
+        const spy = jest.spyOn(LOG, 'FAIL');
+        expect(FN(['a', 'b', 'c'], ['d'])).toBe(false);
+        expect(spy).toHaveBeenCalledWith('config sheet must contain columns: d');
+    });
+});
+describe('checkKeys()', () => {
+    const FN = checkKeys;
+    it('should check data keys', () => {
+        expect(FN(['🖼️', '🔑name', 'status'], 'data')).toBe(true);
+        expect(FN(['🖼️', '🔑name'], 'data')).toBe(false);
+        expect(FN(['🖼️', 'value', '🔑name'], 'config')).toBe(true);
+        expect(FN(['🖼️', 'value'], 'config')).toBe(false);
+    })
 });
