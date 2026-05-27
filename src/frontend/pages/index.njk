@@ -22,9 +22,9 @@ footer: true
 %}
 
 
-{% set upcomingEvents = [] %}
+{# {% set upcomingEvents = [] %} #}
 
-{% for category in categories %}
+{# {% for category in categories %}
     {% if eventCategories.indexOf(category) > -1 %}
         {% for item in all.data[category] %}
             {% set start = item.start | default('') %}
@@ -55,9 +55,13 @@ footer: true
             {% endif %}
         {% endfor %}
     {% endif %}
-{% endfor %}
+{% endfor %} #}
 
-{% set upcomingEvents = upcomingEvents | sort(false, false, 'startDate') %}
+{# {% set upcomingEvents = all.data | getUpcomingEvents(build.now) %}
+
+{% upcomingEvents = []%} #}
+
+
 
 
 <section class="portfolio-shell" data-portfolio data-view="cards" data-theme="dark">
@@ -138,8 +142,10 @@ footer: true
                 </div>
             </div>
         </nav>
+        {% set upcomingEvents = all.data | getUpcomingEvents(build.now) %}
 
         {% if upcomingEvents | length %}
+        
             <section class="portfolio-upcoming mb-5" aria-labelledby="upcoming-events-title">
                 <div class="portfolio-category-head d-flex align-items-end justify-content-between gap-3 mb-3">
                     <div>
@@ -157,18 +163,16 @@ footer: true
                             data-event-start="{{ event.start }}">
 
                             {% if event.status %}
-                                <span class="badge {{ event.statusClass }}">{{ event.status }}</span>
+                                <span class="badge text-bg-secondary {{ event.statusClass }}">{{ event.status }}</span>
                             {% endif %}
-                            {% if event.country %}
-                                <img
-                                    src="{{ event.country | flag(40) }}"
-                                    alt="{{ event.country }}"
-                                    width="28"
-                                    height="20"
-                                    loading="lazy">
-                            {% endif %} 
-                            {% if event.icon %}
-                                <img src="{{ event.icon }}" alt="" loading="lazy" width="30" height="30">
+                            {{
+                                component("flag", {
+                                    country: event['🌐'],
+                                    width: 20
+                                })
+                            }}
+                            {% if event['🖼️'] %}
+                                <img src="{{ event['🖼️'] }}" alt="" loading="lazy" width="30" height="30">
                             {% else %}
                                 <strong style="width: 30px">{{ event.title | first | upper }}</strong>
                             {% endif %}
@@ -186,10 +190,9 @@ footer: true
                             <span class="badge text-bg-warning d-none" data-event-countdown></span>
                             
                             
-                            {% if event.location or event.country %}
+                            {% if event['📍location'] %}
                                 <span>
-                                    (📍 {{ event.location }}
-                                    <span class="small text-muted">{{ event.categoryLabel }}</span>)
+                                    (📍 {{ event['📍location'] }})
                                 
                                 </span>
                             {% endif %}
@@ -284,7 +287,17 @@ footer: true
                                         <div><dt>date</dt><dd>{{ start }}{% if end %} – {{ end }}{% endif %}</dd></div>
                                     {% endif %}
                                     {% if location or country %}
-                                        <div><dt>loc</dt><dd>{{ location }}{% if country %} / {{ country }}{% endif %}</dd></div>
+                                        <div>
+                                            <dt>loc</dt>
+                                            <dd> {{
+                                                    component("flag", {
+                                                        country: country,
+                                                        width: 20
+                                                    })
+                                                }}  
+                                                {{ location }}
+                                            </dd>
+                                        </div>
                                     {% endif %}
                                     {% if project %}<div><dt>project</dt><dd>{{ project }}</dd></div>{% endif %}
                                     {% if role %}<div><dt>role</dt><dd>{{ role }}</dd></div>{% endif %}

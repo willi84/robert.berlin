@@ -3,7 +3,7 @@ const flagFilter = (value, width = 40) => {
         return '';
     }
 
-    const country = String(value)
+    const country = (typeof value === 'number' ?  String(value) : value)
         .trim()
         .toLowerCase();
 

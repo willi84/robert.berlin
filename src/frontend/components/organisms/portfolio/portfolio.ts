@@ -36,57 +36,58 @@ const formatCountdown = (target: Date, now: Date): $string => {
     return `in ${minutes} min`;
 };
 
-const setupUpcomingEvents = (root: HTMLElement) => {
-    const upcomingList = getElement(root, '[data-upcoming-list]');
-    if (!upcomingList) return;
+// const setupUpcomingEvents = (root: HTMLElement) => {
+//     const upcomingList = getElement(root, '[data-upcoming-list]');
+//     if (!upcomingList) return;
 
-    const count = getElement(root, '[data-upcoming-count]');
-    const items = getElements(upcomingList, '[data-upcoming-item]');
-    const today = new Date();
+//     const count = getElement(root, '[data-upcoming-count]');
+//     const items = getElements(upcomingList, '[data-upcoming-item]');
+//     const today = new Date();
 
-    today.setHours(0, 0, 0, 0);
+//     today.setHours(0, 0, 0, 0);
 
-    let visibleCount = 0;
+//     let visibleCount = 0;
+//     console.log(items);
 
-    items
-        .sort((first, second) => {
-            const firstDate = parseEventDate(first.dataset.eventStart);
-            const secondDate = parseEventDate(second.dataset.eventStart);
+//     items
+//         .sort((first, second) => {
+//             const firstDate = parseEventDate(first.dataset.eventStart);
+//             const secondDate = parseEventDate(second.dataset.eventStart);
 
-            firstDate?.setHours(0, 0, 0, 0);
-            secondDate?.setHours(0, 0, 0, 0);
+//             firstDate?.setHours(0, 0, 0, 0);
+//             secondDate?.setHours(0, 0, 0, 0);
 
-            return (firstDate?.getTime() || Number.MAX_SAFE_INTEGER) - (secondDate?.getTime() || Number.MAX_SAFE_INTEGER);
-        })
-        .forEach((item) => {
-            const target = parseEventDate(item.dataset.eventStart);
-            const countdown = getElement(item, '[data-event-countdown]');
+//             return (firstDate?.getTime() || Number.MAX_SAFE_INTEGER) - (secondDate?.getTime() || Number.MAX_SAFE_INTEGER);
+//         })
+//         .forEach((item) => {
+//             const target = parseEventDate(item.dataset.eventStart);
+//             const countdown = getElement(item, '[data-event-countdown]');
 
-            if (target) {
-                target.setHours(0, 0, 0, 0);
-            }
+//             if (target) {
+//                 target.setHours(0, 0, 0, 0);
+//             }
 
-            const isVisible = Boolean(target && target.getTime() >= today.getTime());
+//             const isVisible = true; // Boolean(target && target.getTime() >= today.getTime());
 
-            item.classList.toggle('d-none', !isVisible);
-            if (!isVisible || !target) return;
+//             item.classList.toggle('d-none', !isVisible);
+//             if (!isVisible || !target) return;
 
-            upcomingList.appendChild(item);
-            visibleCount += 1;
+//             upcomingList.appendChild(item);
+//             visibleCount += 1;
 
-            const diffDays = (target.getTime() - today.getTime()) / DAY_IN_MS;
-            const showCountdown = diffDays <= COUNTDOWN_LIMIT_DAYS;
+//             const diffDays = (target.getTime() - today.getTime()) / DAY_IN_MS;
+//             const showCountdown = diffDays <= COUNTDOWN_LIMIT_DAYS;
 
-            countdown?.classList.toggle('d-none', !showCountdown);
+//             countdown?.classList.toggle('d-none', !showCountdown);
 
-            if (countdown && showCountdown) {
-                countdown.textContent = formatCountdown(target, today);
-            }
-        });
+//             if (countdown && showCountdown) {
+//                 countdown.textContent = formatCountdown(target, today);
+//             }
+//         });
 
-    if (count) count.textContent = `${visibleCount} geplant`;
-    upcomingList.parentElement?.classList.toggle('d-none', visibleCount === 0);
-};
+//     if (count) count.textContent = `${visibleCount} geplant`;
+//     upcomingList.parentElement?.classList.toggle('d-none', visibleCount === 0);
+// };
 
 
 export const createPortfolio = (base: any = document) => {
@@ -153,7 +154,7 @@ export const createPortfolio = (base: any = document) => {
 
     searchInput?.addEventListener('input', applyFilters);
 
-    setupUpcomingEvents(root);
+    // setupUpcomingEvents(root);
     applyView();
     applyFilters();
 };

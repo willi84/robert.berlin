@@ -5,6 +5,7 @@
 import { config } from './project.config.ts';
 import { LOG } from './src/backend/_shared/log/log';
 const { EleventyRenderPlugin } = require("@11ty/eleventy");
+import { filterUpcomingEvents } from './src/setup/filters/upcomingEvents/upcomingEvents.ts';
 // console.log(config)
 
 // .eleventy.config.ts
@@ -86,6 +87,7 @@ eleventyConfig.on('eleventy.after', async () => {
     eleventyConfig.addNunjucksFilter('safeParamIf', safeParamIf);
     eleventyConfig.addNunjucksFilter('isUpcoming', isUpcoming);
     eleventyConfig.addNunjucksFilter('flag', flagFilter);
+    eleventyConfig.addNunjucksFilter('getUpcomingEvents', filterUpcomingEvents);
 
     // vite shortcodes
     eleventyConfig.addNunjucksAsyncShortcode('viteScriptTag', viteScriptTag);
