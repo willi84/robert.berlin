@@ -89,24 +89,25 @@ export const getFinalData = (input: DATA_CATEGORIES) => {
     };
 }
 
-export const doCheck = (keys: string[], CONFIG_KEYS: string[]) => {
+export const doCheck = (keys: string[], CONFIG_KEYS: string[], tab: string) => {
     if(keys.length === 0 || CONFIG_KEYS.length === 0) {
         return false;
     }
     if(keys.filter((key) => CONFIG_KEYS.includes(key)).length !== CONFIG_KEYS.length) {
-        LOG.FAIL(`config sheet must contain columns: ${CONFIG_KEYS.join(', ')}`);
+        LOG.FAIL(`config sheet must contain columns: ${CONFIG_KEYS.join(', ')} for tab: ${tab}`);
         return false
     }
     return true;
 }
 
-export const checkKeys = (keys: string[], type: string) => {
-    if(type === 'config'){
-        const CONFIG_KEYS = ['🖼️', 'value', '🔑name'];
-        return doCheck(keys, CONFIG_KEYS);
-    } else if(type === 'data') {
-        const DATA_KEYS = ['🖼️', '🔑name', 'status'];
-        return doCheck(keys, DATA_KEYS);
+export const checkKeys = (keys: string[], type: string, tab: string) => {
+    switch(type){
+        case 'config':
+            return doCheck(keys, ['🖼️', 'value', '🔑name'], tab);
+        case 'data':
+            return doCheck(keys, ['🖼️', '🔑name', 'status'], tab);
+        default:
+            LOG.WARN(`no type found for tab: ${tab}`);
+            return false;
     }
-
 }

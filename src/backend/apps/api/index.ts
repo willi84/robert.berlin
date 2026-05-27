@@ -11,6 +11,7 @@ const FINAL_PATH = "src/_data/all.json";
 const EMOJI_PATH = "src/_data/emojis.json";
 
 const CONFIG_TAB = '⚙️ CONFIG';
+const COLUMNS_TAB = 'COLUMNS';
 
 const main = async () => {
     try {
@@ -22,7 +23,8 @@ const main = async () => {
         }
         LOG.OK(`[${status}] connection check`);
         // get config
-        const config = await getSheetTab(TARGET_ID, CONFIG_TAB);
+        const config = await getSheetTab(TARGET_ID, CONFIG_TAB, []);
+        // console.log(config)
         // TABS
         const ACTIVE_TABS = config
         .filter((row) => row['status'] === 'active')
@@ -32,8 +34,9 @@ const main = async () => {
         let result: any = {};
         for(const TAB of ACTIVE_TABS) {
             const tab = TAB['tab'];
-            const data = await getSheetTab(TARGET_ID, tab);
-            const isValid = checkKeys(Object.keys(data[0] || {}), TAB['value']);
+            const tabItem = config.filter((row) => row['status'] === 'active' && row['tab'] === tab)[0];
+            const data = await getSheetTab(TARGET_ID, tab, tabItem['filtered'].split(',').map((item: string) => item.trim()));
+            const isValid = checkKeys(Object.keys(data[0] || {}), TAB['value'], tab);
             if(!isValid) {
                 return;
             }
@@ -44,7 +47,7 @@ const main = async () => {
         FS.writeFile(FINAL_PATH, getFinalData(result));
 
         const TABS_EMOJIS = 'EMOJIS';
-        let dataEmojis: any = await getSheetTab(TARGET_ID, TABS_EMOJIS);
+        let dataEmojis: any = await getSheetTab(TARGET_ID, TABS_EMOJIS, []);
         FS.writeFile(EMOJI_PATH, dataEmojis);
 
 

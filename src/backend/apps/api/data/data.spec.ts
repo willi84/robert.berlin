@@ -184,24 +184,33 @@ describe('getFinalData()', () => {
 describe('doCheck()', () => {
     const FN = doCheck;
     it('should compare two Array of strings and return true if all values of the second array are present in the first array', () => {
-        expect(FN(['a', 'b', 'c'], ['a', 'b'])).toBe(true);
-        expect(FN(['a', 'b', 'c'], ['a', 'd'])).toBe(false);
-        expect(FN(['a', 'b', 'c'], ['d'])).toBe(false);
-        expect(FN([], ['a'])).toBe(false);
-        expect(FN(['a'], [])).toBe(false);
+        expect(FN(['a', 'b', 'c'], ['a', 'b'], 'tabName')).toBe(true);
+        expect(FN(['a', 'b', 'c'], ['a', 'd'], 'tabName')).toBe(false);
+        expect(FN(['a', 'b', 'c'], ['d'], 'tabName')).toBe(false);
+        expect(FN([], ['a'], 'tabName')).toBe(false);
+        expect(FN(['a'], [], 'tabName')).toBe(false);
     });
     it('should return a fail message if arrays differ', () => {
         const spy = jest.spyOn(LOG, 'FAIL');
-        expect(FN(['a', 'b', 'c'], ['d'])).toBe(false);
-        expect(spy).toHaveBeenCalledWith('config sheet must contain columns: d');
+        expect(FN(['a', 'b', 'c'], ['d'], 'tabName')).toBe(false);
+        expect(spy).toHaveBeenCalledWith('config sheet must contain columns: d for tab: tabName');
     });
 });
 describe('checkKeys()', () => {
     const FN = checkKeys;
     it('should check data keys', () => {
-        expect(FN(['🖼️', '🔑name', 'status'], 'data')).toBe(true);
-        expect(FN(['🖼️', '🔑name'], 'data')).toBe(false);
-        expect(FN(['🖼️', 'value', '🔑name'], 'config')).toBe(true);
-        expect(FN(['🖼️', 'value'], 'config')).toBe(false);
-    })
+        expect(FN(['🖼️', '🔑name', 'status'], 'data', 'tabName')).toBe(true);
+        expect(FN(['🖼️', '🔑name'], 'data', 'tabName')).toBe(false);
+        expect(FN(['🖼️', 'value', '🔑name'], 'config', 'tabName')).toBe(true);
+        expect(FN(['🖼️', 'value'], 'config', 'tabName')).toBe(false);
+        expect(FN(['🖼️', 'value'], '', 'tabName')).toBe(false);
+        expect(FN(['🖼️', 'value'], 'xxx', 'tabName')).toBe(false);
+    });
+    it('should return a warning message if no type is found', () => {
+        const spy = jest.spyOn(LOG, 'WARN');
+        expect(FN(['🖼️', 'value'], '', 'tabName')).toBe(false);
+        expect(spy).toHaveBeenCalledWith('no type found for tab: tabName');
+        expect(FN(['🖼️', 'value'], 'xxx', 'tabName')).toBe(false);
+        expect(spy).toHaveBeenCalledWith('no type found for tab: tabName');
+    });
 });

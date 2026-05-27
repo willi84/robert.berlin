@@ -83,14 +83,30 @@ const getSheetText = async (url: string): Promise<string> => {
     return response.text();
 };
 
-export const getSheetTab = async (id: string, tab: string): Promise<ProjectItem[]> => {
+export const getSheetTab = async (id: string, tab: string, filterColumns: string[]): Promise<ProjectItem[]> => {
     const SHEET_URL = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?sheet=${encodeURIComponent(tab)}&tqx=out:json`;
     const rawText: string = await getSheetText(SHEET_URL);
     const projects: ProjectItem[] = await getProjects(rawText)
         // filter empty items (where all values are empty strings)
         .filter((item) => Object.values(item).some((value) => value.trim() !== ""))
     LOG.OK(`Fetched ${projects.length} items from tab "${tab}"`);
-    return projects.filter(item=> {
+    const newProjects = [];
+    for(const project of projects){
+        const newItem: any = {};
+        const keys = Object.keys(project);
+        if(filterColumns.length === 0){
+            newProjects.push(project);
+            continue;
+        } else {
+            for(const key of keys){
+                if(!filterColumns.includes(key)){
+                    newItem[key] = project[key];
+                }
+            }
+            newProjects.push(newItem);
+        }
+    }
+    return newProjects.filter(item=> {
         // specific case because pin has always value
         const keys = Object.keys(item).filter(key => key !== '📌');
         return keys.some(key => item[key].trim() !== "");
