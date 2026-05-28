@@ -33,6 +33,7 @@ export const setupSearch = (): void => {
         }
     
         const cards = Array.from(root.querySelectorAll<HTMLElement>('[data-search-item]'));
+        console.log(cards);
         const applySearch = (): void => {
             const visibleCount = updateProjectVisibility(cards, getSearchValue(input));
             updateEmptyState(emptyState, visibleCount);

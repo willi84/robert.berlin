@@ -96,6 +96,7 @@ export const createPortfolio = (base: any = document) => {
 
     const searchInput = getElement<HTMLInputElement>(root, '[data-search-input]');
     const items = getElements(root, '[data-search-item]');
+    console.log(items);
     const sections = getElements(root, '[data-category-section]');
     const filterButtons = getButtons(root, '[data-filter-button]');
     const viewButtons = getButtons(root, '[data-view-button]');
@@ -105,6 +106,7 @@ export const createPortfolio = (base: any = document) => {
     const stored = JSON.parse(localStorage.getItem(storageKey) || '{}');
     let currentCategory = 'all';
     let currentView = stored.view || 'cards';
+
 
     const save = () => localStorage.setItem(storageKey, JSON.stringify({ view: currentView }));
 

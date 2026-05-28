@@ -21,49 +21,6 @@ footer: true
 } 
 %}
 
-
-{# {% set upcomingEvents = [] %} #}
-
-{# {% for category in categories %}
-    {% if eventCategories.indexOf(category) > -1 %}
-        {% for item in all.data[category] %}
-            {% set start = item.start | default('') %}
-
-            {% if start and (start | isUpcoming) %}
-                {% set title = item.title | default(item['🔑name']) | default('Ohne Titel') %}
-                {% set icon = item['🖼️'] | default('') %}
-                {% set location = item['📍location'] | default('') %}
-                {% set country = item['🌐'] | default('') %}
-                {% set status = item.status | default('') %}
-                {% set url = item.url | default(item.website) | default('') %}
-
-                {% set upcomingEvents = upcomingEvents.concat([{
-                    category: category,
-                    categoryLabel: categoryLabels[category] | default(category),
-                    title: title,
-                    icon: icon,
-                    location: location,
-                    country: country,
-                    start: start,
-                    end: item.end | default(''),
-                    status: status,
-                    statusClass: statusClasses[status] | default('text-bg-secondary'),
-                    url: url,
-
-                    isToday: false
-                }]) %}
-            {% endif %}
-        {% endfor %}
-    {% endif %}
-{% endfor %} #}
-
-{# {% set upcomingEvents = all.data | getUpcomingEvents(build.now) %}
-
-{% upcomingEvents = []%} #}
-
-
-
-
 <section class="portfolio-shell" data-portfolio data-view="cards" data-theme="dark">
     <div class="container py-4 py-lg-5">
         <header class="portfolio-header mb-4 z-3 position-relative">
@@ -142,6 +99,7 @@ footer: true
                 </div>
             </div>
         </nav>
+        
         {% set upcomingEvents = all.data | getUpcomingEvents(build.now) %}
 
         {% if upcomingEvents | length %}
@@ -157,9 +115,17 @@ footer: true
 
                 <div class="portfolio-upcoming-list" data-upcoming-list>
                     {% for event in upcomingEvents %}
+                    {# {{event | dump}} #}
                         <article
                             class="portfolio-upcoming-item alert alert-secondary py-2 px-3 mb-2 d-flex align-items-center gap-2 flex-wrap"
                             data-upcoming-item
+                            data-search-item
+                            data-category="{{ event.category }}"
+                            data-search="{{ searchValue }}"
+                            data-title="{{ event.title | lower }}"
+                            data-status="{{ event.status | lower }}"
+                            data-start="{{ event.start }}"
+                            data-pinned="{% if event.pinned %}1{% else %}0{% endif %}"
                             data-event-start="{{ event.start }}">
 
                             {% if event.status %}
@@ -207,7 +173,6 @@ footer: true
             <section class="portfolio-category mb-5" data-category-section="{{ category }}">
                 <div class="portfolio-category-head d-flex align-items-end justify-content-between gap-3 mb-3">
                     <div>
-                        {# <p class="portfolio-kicker mb-1">cat {{ loop.index }}</p> #}
                         <h2 class="h4 mb-0">{{ categoryLabels[category] | default(category) }}</h2>
                     </div>
                     <span class="portfolio-count">{{ all.data[category] | length }} items</span>
@@ -240,7 +205,7 @@ footer: true
 
                         <article
                             class="portfolio-item{% if pinned %} is-pinned{% endif %}"
-                            data-search-item
+                            data-search-item 
                             data-category="{{ category }}"
                             data-search="{{ searchValue }}"
                             data-title="{{ title | lower }}"
