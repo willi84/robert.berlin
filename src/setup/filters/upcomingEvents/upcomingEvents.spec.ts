@@ -1,19 +1,19 @@
 import { compareDates, diffDays, filterUpcomingEvents, parseEventDate } from './upcomingEvents';
 
 const hackathons = [
-        { status: "done", title: "Hack A", start: "24.10.2015", end: "25.10.2015" },
-        { status: "done", title: "Hack B", start: "24.10.2026", end: "25.10.2015" },
-        { status: "done", title: "Hack C", start: "24.09.2026", end: "25.09.2026" },
+    { status: "done", title: "Hack A", start: "24.10.2015", end: "25.10.2015" },
+    { status: "done", title: "Hack B", start: "24.10.2026", end: "25.10.2015" },
+    { status: "done", title: "Hack C", start: "24.09.2026", end: "25.09.2026" },
 ];
 const talks = [
-            { status: "done", event: "Talk A", start: "02.08.2019" },
-            { status: "done", event: "Talk B", start: "01.08.2022" },
-            { status: "done", event: "Talk C", start: "07.08.2026" },
-            { status: "done", event: "Talk D", start: "15.05.2026" },
-            { status: "done", event: "Talk E", start: "16.05.2026" },
-            { status: "done", event: "Talk F", start: "18.05.2026" },
-            { status: "done", event: "Talk G", start: "20.05.2026" },
-            { status: "done", event: "Talk H", start: "22.05.2026" },
+    { status: "done", event: "Talk A", start: "02.08.2019" },
+    { status: "done", event: "Talk B", start: "01.08.2022" },
+    { status: "done", event: "Talk C", start: "07.08.2026" },
+    { status: "done", event: "Talk D", start: "15.05.2026" },
+    { status: "done", event: "Talk E", start: "16.05.2026" },
+    { status: "done", event: "Talk F", start: "18.05.2026" },
+    { status: "done", event: "Talk G", start: "20.05.2026" },
+    { status: "done", event: "Talk H", start: "22.05.2026" },
 ];
 const conferences = [
     { title: "Craft Conference 2024", start: "02.06.2024", end: "05.06.2024" },
@@ -29,10 +29,10 @@ const workshops = [
     { title: "Crafting Code 2024", start: "22.4.2024", end: "" },
 ];
 const projects = [
-            {
-                "title": "MetaCollect",
-                "🔑name": "MetaCollect",
-            }
+    {
+        "title": "MetaCollect",
+        "🔑name": "MetaCollect",
+    }
 ];
 
 const SAMPLE_DATA = {

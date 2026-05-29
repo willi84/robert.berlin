@@ -120,15 +120,16 @@ export const createPortfolio = (base: any = document) => {
         let visibleCount = 0;
 
         items.forEach((item) => {
-            const matchesCategory = currentCategory === 'all' || item.dataset.category === currentCategory;
+            const matchesCategory = currentCategory === 'all' || currentCategory === 'upcoming' || item.dataset.category === currentCategory;
             const matchesSearch = !query || (item.dataset.search || '').includes(query);
             const visible = matchesCategory && matchesSearch;
             item.classList.toggle('d-none', !visible);
             if (visible) visibleCount += 1;
         });
-
         sections.forEach((section) => {
-            const hasVisibleItems = section.querySelectorAll('[data-search-item]:not(.d-none)').length > 0;
+            const hasVisibleItems = section.querySelectorAll('article:not(.d-none)').length > 0;
+            // console.log(section, hasVisibleItems);
+            // const hasVisibleItems = section.querySelectorAll('[data-search-item]:not(.d-none)').length > 0;
             section.classList.toggle('d-none', !hasVisibleItems);
         });
 
@@ -140,10 +141,10 @@ export const createPortfolio = (base: any = document) => {
     };
 
     filterButtons.forEach((button) => {
-        button.addEventListener('click', () => {
-            currentCategory = button.dataset.filterButton || 'all';
-            applyFilters();
-        });
+        // button.addEventListener('click', () => {
+        //     currentCategory = button.dataset.filterButton || 'all';
+        //     applyFilters();
+        // });
     });
 
     viewButtons.forEach((button) => {
@@ -154,9 +155,9 @@ export const createPortfolio = (base: any = document) => {
         });
     });
 
-    searchInput?.addEventListener('input', applyFilters);
+    // searchInput?.addEventListener('input', applyFilters);
 
     // setupUpcomingEvents(root);
     applyView();
-    applyFilters();
+    // applyFilters();
 };

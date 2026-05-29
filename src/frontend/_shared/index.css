@@ -8,7 +8,7 @@
 @import './components/_levels.css'; */
 @import './../components/atoms/button/button.atom.css';
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 

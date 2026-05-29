@@ -1,16 +1,21 @@
+import { getElements } from '../../../_shared/select/select';
+
 const getSearchValue = (element: HTMLInputElement): string => element.value.trim().toLowerCase();
 
 const updateProjectVisibility = (cards: HTMLElement[], query: string): number => {
     let visibleCount = 0;
 
     cards.forEach((card) => {
+        if(!card.dataset.search) {
+            console.warn('Card is missing data-search attribute:', card);
+        }
         const haystack = card.dataset.search ?? '';
         const isVisible = haystack.includes(query);
 
-        card.classList.toggle('hidden', !isVisible);
+        card.classList.toggle('d-none', !isVisible);
+        // card.classList.toggle('hidden', !isVisible);
         visibleCount += isVisible ? 1 : 0;
     });
-
     return visibleCount;
 };
 
@@ -25,6 +30,7 @@ export const setupSearch = (): void => {
     }
     for(const context of allContexts) {
         const root = context;
+        const sections = getElements(root, '[data-category-section]');
         const input = root.querySelector<HTMLInputElement>('[data-search-input]');
         const emptyState = root.querySelector<HTMLElement>('[data-search-empty]');
     
@@ -33,10 +39,32 @@ export const setupSearch = (): void => {
         }
     
         const cards = Array.from(root.querySelectorAll<HTMLElement>('[data-search-item]'));
-        console.log(cards);
         const applySearch = (): void => {
             const visibleCount = updateProjectVisibility(cards, getSearchValue(input));
             updateEmptyState(emptyState, visibleCount);
+            sections.forEach((section) => {
+                const sectionID = section.dataset.categorySection;
+                const countElement = section.querySelector<HTMLElement>('[data-count]');
+                const filterButton = root.querySelector<HTMLElement>(`[data-filter-button="${sectionID}"]`);
+                const num = section.querySelectorAll('article:not(.d-none)').length
+                const hasNoVisibleItems = num === 0;
+                section.classList.toggle('d-none', hasNoVisibleItems);
+                if(filterButton){
+                    const countElementButton = filterButton.querySelector<HTMLElement>('[data-count]');
+                    if(countElementButton) {
+                        countElementButton.textContent = `${num}`;
+                    }
+                    if(hasNoVisibleItems) {
+                        filterButton.classList.add('inactive');
+                    } else {
+                        filterButton.classList.remove('inactive');
+                    }
+                }
+                if(countElement) {
+                    countElement.textContent = `${num}`;
+                }
+            });
+            
         };
     
         input.addEventListener('input', applySearch);

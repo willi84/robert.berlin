@@ -1,11 +1,15 @@
 // import 'vite/dynamic-import-polyfill'; // for prod mode
 import './_shared/index.css';
 import { createDropdowns } from './components/molecules/dropdown/dropdown';
+import { activateFilterButtons } from './components/molecules/filter-button/filter-button';
+import { setupSearch } from './components/molecules/search/search.molecule';
 import { createPortfolio } from './components/organisms/portfolio/portfolio';
 import { createEmoji } from './pages/emojis/emojis';
 
 (() => {
+        setupSearch();
         createPortfolio();
         createEmoji();
         createDropdowns();
+        activateFilterButtons('all');
 })();
