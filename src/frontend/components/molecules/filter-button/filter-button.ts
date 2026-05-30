@@ -6,6 +6,9 @@ export const activateFilterButtons = (defaultCategory: string): void => {
     const sections = getElements(root, '[data-category-section]');
     filterButtons.forEach((button) => {
         button.addEventListener('click', () => {
+            if(button.classList.contains('inactive')) {
+                return; // Do nothing if the button is inactive
+            }
             const category = button.dataset.filterButton || defaultCategory;
             filterButtons.forEach((btn) => btn.classList.toggle('active', btn === button));
             // root.setAttribute('data-category', category);
