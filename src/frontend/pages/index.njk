@@ -64,8 +64,8 @@ footer: true
         </header>
 
         {% set upcomingEvents = all.data | getUpcomingEvents(build.now) %}
-<section search-context>
-
+        <section search-context>
+            
     <nav class="portfolio-toolbar mb-4  z-2 position-relative" aria-label="Portfolio Filter">
         <div class="row g-3 align-items-center">
             <div class="col-12 col-lg-8">
@@ -90,40 +90,37 @@ footer: true
             </div>
             <div class="col-12 col-lg-12">
                 <div class="portfolio-filter-scroll gap-2 justify-content-lg-end" data-category-filter>
-                    {# <button class="btn btn-sm mb-2 portfolio-filter active" type="button" data-filter-button="all">
-                        Alle <span>{{ categories | length }}</span>
-                    </button> #}
                     {{
-                            component("filter-button", {
-                                key: "all",
-                                label: "Alle",
-                                length: categories | length
-                            })
+                        component("filter-button", {
+                            key: "all",
+                            label: "Alle",
+                            css: 'mb-2',
+                            length: categories | length
+                        })
                     }}
                     {{
-                            component("filter-button", {
-                                key: "upcoming",
-                                label: "Upcoming",
-                                length: upcomingEvents | length
-                            })
+                        component("filter-button", {
+                            key: "upcoming",
+                            label: "Upcoming",
+                            css: 'mb-2',
+                            length: upcomingEvents | length
+                        })
                     }}
                     {% for category in categories %}
                         {{
                             component("filter-button", {
                                 key: category,
                                 label: categoryLabels[category] | default(category),
+                                css: 'mb-2',
                                 length: all.data[category] | length
                             })
                         }}
-                        {# <button class="btn btn-sm mb-2 portfolio-filter" type="button" data-filter-button="{{ category }}">
-                            {{ categoryLabels[category] | default(category) }} <span>{{ all.data[category] | length }}</span>
-                        </button> #}
                     {% endfor %}
                 </div>
             </div>
         </div>
     </nav>
-
+    
     {% if upcomingEvents | length %}
     
         <section class="portfolio-upcoming portfolio-section mb-5" aria-labelledby="upcoming-events-title" data-category-section="upcoming">
@@ -137,51 +134,49 @@ footer: true
 
             <div class="portfolio-upcoming-list" data-upcoming-list>
                 {% for event in upcomingEvents %}
-                {% set searchValue = (event.title ~ ' ' ~ event['📍location'] ~ ' ' ~ event['🌐'] ~ ' ' ~ event.status) | lower %}
-                {# {{event | dump}} #}
                     <article
                         class="portfolio-upcoming-item alert alert-secondary py-2 px-3 mb-2 d-flex align-items-center gap-2 flex-wrap"
                         data-upcoming-item
                         data-search-item
                         data-category="{{ event.category }}"
-                        data-search="{{ searchValue }}"
+                        data-search="{{ event | getSearchValue('') }}"
                         data-title="{{ event.title | lower }}"
                         data-status="{{ event.status | lower }}"
                         data-start="{{ event.start }}"
                         data-pinned="{% if event.pinned %}1{% else %}0{% endif %}"
                         data-event-start="{{ event.start }}">
 
-                        {% if event.status %}
-                            <span class="badge text-bg-secondary {{ event.statusClass }}">{{ event.status }}</span>
-                        {% endif %}
+                        {{ component("badge", { text: event.status, css: "badge text-bg-secondary {{ event.statusClass }}" }) }}
                         {{
                             component("flag", {
-                                country: event['🌐'],
+                                country: event['country'],
                                 width: 20
                             })
                         }}
-                        {% if event['🖼️'] %}
-                            <img src="{{ event['🖼️'] }}" alt="" loading="lazy" width="30" height="30">
-                        {% else %}
-                            <strong style="width: 30px">{{ event.title | first | upper }}</strong>
-                        {% endif %}
-                        <span><time datetime="{{ event.start }}">{{ event.start }}{% if event.end %} – {{ event.end }}{% endif %}</time></span>
+                        {{
+                            component("image", {
+                                image: event.logo,
+                                class: "",
+                                width: "30",
+                                height: "30",
+                                height: "auto",
+                                placeholder: event.title,
+                                lazy: true
+                            })
+                        }}
+                        {{event.start}} {% if event.end is defined and event.end != "" %} - {{ event.end }}  {% endif %}
                         &nbsp; - &nbsp;
                         {% if event.url %}
-                        <a href="{{ event.url }}" target="_blank" rel="noopener noreferrer" class="fw-semibold text-decoration-none">
-                            {{ event.title }}
-                        </a>
+                            {{ component("link", { url: event.url, text: event.title, css: "fw-semibold text-decoration-none", target: "_blank" }) }}
                         {% else %}
-                        <strong>{{ event.title }}</strong>
+                            <strong>{{ event.title }}</strong>
                         {% endif %}
                         
                         
-                        <span class="badge text-bg-warning d-none" data-event-countdown></span>
                         
-                        
-                        {% if event['📍location'] %}
+                        {% if event['location'] %}
                             <span>
-                                (📍 {{ event['📍location'] }})
+                                (📍 {{ event['location'] }})
                             
                             </span>
                         {% endif %}
@@ -203,50 +198,44 @@ footer: true
 
             <div class="portfolio-grid">
                 {% for item in all.data[category] %}
-                    {% set title = item.title | default(item['🔑name']) | default('Ohne Titel') %}
-                    {% set name = item['🔑name'] | default(title) %}
-                    {% set icon = item['🖼️'] | default('') %}
-                    {% set screenshot = item.screenshot | default('') %}
-                    {% set description = item.description | default('') %}
-                    {% set status = item.status | default('') %}
-                    {% set tags = item['🏷️ tags'] | default('') %}
-                    {% set location = item['📍location'] | default('') %}
-                    {% set country = item['🌐'] | default('') %}
-                    {% set start = item.start | default('') %}
-                    {% set end = item.end | default('') %}
-                    {% set project = item.project | default('') %}
-                    {% set result = item.prize | default('') %}
-                    {% set role = item.role | default('') %}
-                    {% set conductor = item.conductor | default('') %}
-                    {% set type = item.type | default('') %}
-                    {% set url = item.url | default(item.website) | default('') %}
-                    {% set code = item.code | default(item.github) | default('') %}
-                    {% set pinned = item['📌'] == 'TRUE' %}
-                    {% set statusClass = statusClasses[status] | default('text-bg-secondary') %}
-                    {% set searchValue = (category ~ ' ' ~ title ~ ' ' ~ name ~ ' ' ~ description ~ ' ' ~ status ~ ' ' ~ tags ~ ' ' ~ location ~ ' ' ~ country ~ ' ' ~ project ~ ' ' ~ result ~ ' ' ~ role ~ ' ' ~ conductor ~ ' ' ~ type) | lower %}
+                    {% set statusClass = statusClasses[item.status] | default('text-bg-secondary') %}
 
 
                     <article
-                        class="portfolio-item{% if pinned %} is-pinned{% endif %}"
+                        class="portfolio-item{% if item.pinned %} is-pinned{% endif %}"
                         data-search-item 
-                        data-category="{{ category }}"
-                        data-search="{{ searchValue }}"
-                        data-title="{{ title | lower }}"
-                        data-status="{{ status | lower }}"
-                        data-start="{{ start }}"
-                        data-pinned="{% if pinned %}1{% else %}0{% endif %}">
+                        data-category="{{ item.category }}"
+                        data-search="{{ item | getSearchValue(category) }}"
+                        data-title="{{ item.title | lower }}"
+                        data-status="{{ item.status | lower }}"
+                        data-start="{{ item.start }}"
+                        data-pinned="{% if item.pinned %}1{% else %}0{% endif %}">
                         <div class="portfolio-visual">
-                            {% if screenshot %}
-                                <a href="{{ url or screenshot }}" {% if url %}target="_blank" rel="noopener noreferrer"{% endif %} aria-label="{{ title }} öffnen">
-                                    <img class="portfolio-screenshot" src="{{ screenshot }}" alt="Screenshot von {{ title }}" loading="lazy">
-                                </a>
+                            {% if item.screenshot %}
+                            <a href="{{ item.url or item.screenshot }}" {% if url %}target="_blank" rel="noopener noreferrer"{% endif %} aria-label="{{ item.title }} öffnen">
+                                {{
+                                    component("image", {
+                                        image: item.screenshot,
+                                        css: "portfolio-screenshot",
+                                        height: "auto",
+                                        width: "30",
+                                        alt: "Screenshot von {{ item.title }}",
+                                        placeholder: item.title,
+                                        lazy: true
+                                    })
+                                }}
+                            </a>
                             {% else %}
                                 <div class="portfolio-iconbox" aria-hidden="true">
-                                    {% if icon %}
-                                        <img src="{{ icon }}" alt="" loading="lazy">
-                                    {% else %}
-                                        <span>{{ title | first | upper }}</span>
-                                    {% endif %}
+                                    {{
+                                        component("image", {
+                                            image: item.icon,
+                                            height: "auto",
+                                            width: "30",
+                                            placeholder: item.title,
+                                            lazy: true
+                                        })
+                                    }}
                                 </div>
                             {% endif %}
                         </div>
@@ -254,50 +243,39 @@ footer: true
                         <div class="portfolio-content">
                             <div class="portfolio-item-top">
                                 <div class="min-w-0">
-                                    <p class="portfolio-path mb-1">{{ category }}/{{ name | lower | replace(' ', '-') }}</p>
-                                    <h3 class="portfolio-item-title mb-0">{{ title }}</h3>
+                                    <p class="portfolio-path mb-1">{{ category }}/{{ item.name | lower | replace(' ', '-') }}</p>
+                                    <h3 class="portfolio-item-title mb-0">{{ item.title }}</h3>
                                 </div>
-                                {% if pinned %}<span class="portfolio-pin" title="Hervorgehoben">📌</span>{% endif %}
+                                {% if item.pinned == "TRUE" %}
+                                    <span class="portfolio-pin" title="Hervorgehoben">📌</span>
+                                {% endif %}
                             </div>
 
                             <div class="portfolio-badges">
-                                {% if status %}<span class="badge {{ statusClass }}">{{ status }}</span>{% endif %}
-                                {% if result %}<span class="badge text-bg-success">🏆 {{ result }}</span>{% endif %}
-                                {% if tags %}<span class="badge portfolio-muted-badge">{{ tags }}</span>{% endif %}
+                                 {{ component("badge", { text: item.status, css: statusClass }) }}
+                                 {{ component("badge", { text: item.prize, css: "text-bg-success", prefix: "🏆" }) }}
+                                 {{ component("badge", { text: item.tags, css: "portfolio-muted-badge" }) }}
                             </div>
 
-                            {% if description %}
-                                <p class="portfolio-description">{{ description }}</p>
+                            {% if item.description %}
+                                <p class="portfolio-description">{{ item.description }}</p>
                             {% endif %}
 
                             <dl class="portfolio-meta">
-                                {% if start %}
-                                    <div><dt>date</dt><dd>{{ start }}{% if end %} – {{ end }}{% endif %}</dd></div>
-                                {% endif %}
-                                {% if location or country %}
-                                    <div>
-                                        <dt>loc</dt>
-                                        <dd> {{
-                                                component("flag", {
-                                                    country: country,
-                                                    width: 20
-                                                })
-                                            }}  
-                                            {{ location }}
-                                        </dd>
-                                    </div>
-                                {% endif %}
-                                {% if project %}<div><dt>project</dt><dd>{{ project }}</dd></div>{% endif %}
-                                {% if role %}<div><dt>role</dt><dd>{{ role }}</dd></div>{% endif %}
-                                {% if conductor %}<div><dt>by</dt><dd>{{ conductor }}</dd></div>{% endif %}
-                                {% if type %}<div><dt>type</dt><dd>{{ type }}</dd></div>{% endif %}
+                                {{ component("key_value", { key: "date", start: item.start, end: item.end }) }}
+                                {{ component("key_value", { key: "loc", value: item.location, flag: item.country }) }}
+                                {{ component("key_value", { key: "project", value: item.project }) }}
+                                {{ component("key_value", { key: "role", value: item.role }) }}
+                                {{ component("key_value", { key: "conductor", value: item.conductor }) }}
+                                {{ component("key_value", { key: "type", value: item.type }) }}
                             </dl>
 
                             <div class="portfolio-links">
-                                {% if url %}<a class="btn btn-sm portfolio-link" href="{{ url }}" target="_blank" rel="noopener noreferrer">open ↗</a>{% endif %}
-                                {% if code %}<a class="btn btn-sm portfolio-link" href="{{ code }}" target="_blank" rel="noopener noreferrer">code</a>{% endif %}
-                                {% if item['pitch-video'] %}<a class="btn btn-sm portfolio-link" href="{{ item['pitch-video'] }}" target="_blank" rel="noopener noreferrer">video</a>{% endif %}
-                                {% if item['pitch-deck'] %}<a class="btn btn-sm portfolio-link" href="{{ item['pitch-deck'] }}" target="_blank" rel="noopener noreferrer">deck</a>{% endif %}
+                                {% set css_link = "btn btn-sm portfolio-link" %}
+                                {{ component("link", { url: item.url, text: "open ↗", css: css_link, target: "_blank" }) }}
+                                {{ component("link", { url: item.code, text: "code", css: css_link, target: "_blank" }) }}
+                                {{ component("link", { url: item.video, text: "video", css: css_link, target: "_blank" }) }}
+                                {{ component("link", { url: item.slides, text: "slides", css: css_link, target: "_blank" }) }}
                             </div>
                         </div>
                     </article>

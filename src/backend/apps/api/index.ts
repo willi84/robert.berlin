@@ -1,8 +1,8 @@
 import { FS } from "../../_shared/fs/fs";
 import { convertText2JSON, getCellValue, getHeaders, getProjects, getSheetTab } from '../../_shared/google/google';
 import { LOG } from "../../_shared/log/log";
-import type{ DATA_CATEGORIES } from './data/data.d';
-import { checkKeys, fixImages, getFinalData } from './data/data';
+import type{ DATA_CATEGORIES, DataList, REPLACE_CONFIG, SYNONYM_ITEM } from './data/data.d';
+import { checkKeys, replaceValues, getFinalData, checkColumns, getKeyValuePairs } from './data/data';
 import { getHttpStatus } from '../../_shared/http/http';
 
 const TARGET_ID = "1R6C_CmAt8Z6-fMObyP355mZJM71cQ4dJPXmS-fhk1pQ";
@@ -22,9 +22,10 @@ const main = async () => {
             return;
         }
         LOG.OK(`[${status}] connection check`);
+
         // get config
         const config = await getSheetTab(TARGET_ID, CONFIG_TAB, []);
-        // console.log(config)
+        const colsConfig: SYNONYM_ITEM[] = await getSheetTab(TARGET_ID, COLUMNS_TAB, []) as SYNONYM_ITEM[];
         // TABS
         const ACTIVE_TABS = config
         .filter((row) => row['status'] === 'active')
@@ -32,17 +33,42 @@ const main = async () => {
         .map((row) => row['tab']);
         LOG.INFO(`active tabs: ${TABS.join(', ')}`);
         let result: any = {};
+        const REPLACEABLE_CONFIG: REPLACE_CONFIG = {
+            images: {},
+            locations: {},
+            status: {}
+        };
         for(const TAB of ACTIVE_TABS) {
             const tab = TAB['tab'];
             const tabItem = config.filter((row) => row['status'] === 'active' && row['tab'] === tab)[0];
-            const data = await getSheetTab(TARGET_ID, tab, tabItem['filtered'].split(',').map((item: string) => item.trim()));
-            const isValid = checkKeys(Object.keys(data[0] || {}), TAB['value'], tab);
+            const raw = await getSheetTab(TARGET_ID, tab, tabItem['filtered'].split(',').map((item: string) => item.trim()));
+            const isValid = checkKeys(Object.keys(raw[0] || {}), TAB['value'], tab);
             if(!isValid) {
                 return;
             }
-            result[tab] = data;
-            result = fixImages(result);
+            // setup configration for value replacement
+            switch(tab){
+                case '🖼️ ICONS':
+                    REPLACEABLE_CONFIG.images = getKeyValuePairs(raw as DataList);
+                    break;
+                case '📍 LOCATIONS':
+                    REPLACEABLE_CONFIG.locations = getKeyValuePairs(raw as DataList);
+                    break;
+                case 'STATUS':
+                    REPLACEABLE_CONFIG.status = getKeyValuePairs(raw as DataList);
+                    break;
+                default:
+                    result[tab] = raw;
+            }
         }
+        for(const tab of TABS){
+            const tabResult = result[tab];
+            if(tabResult){
+                const temp = replaceValues(tabResult, REPLACEABLE_CONFIG);
+                result[tab] = checkColumns(temp, colsConfig); 
+            }
+        }
+        result['configuration'] = REPLACEABLE_CONFIG;
         FS.writeFile(OUTPUT_PATH, result);
         FS.writeFile(FINAL_PATH, getFinalData(result));
 

@@ -1,62 +1,24 @@
 import { LOG } from '../../../_shared/log/log';
-import { checkKeys, doCheck, fixImages, getFinalData, getTabValue, setTabValue } from './data';
+import type { DataList, SYNONYM_ITEM } from './data.d';
+import { checkKeys, doCheck, replaceValues, getFinalData, getTabValue, setTabValue, checkColumns } from './data';
 
-const INPUT = {
-    "📍 LOCATIONS": [
-        {
-            "🖼️": "",
-            "🔑name": "Berlin",
-            "value": "DE"
-        },
-        {
-            "🖼️": "",
-            "🔑name": "Budapest",
-            "value": "HU"
-        }
-    ],
-    "🖼️ ICONS": [
-        {
-            "🖼️": "",
-            "🔑name": "ngGirls",
-            "value": "https://www.ng-girls.org/favicon.ico"
-        },
-        {
-            "🖼️": "",
-            "🔑name": "craft",
-            "value": "https://craft-conf.com/images/icons/craft.ico"
-        }
-    ],
-    "PROJECTS": [
-        {
-            "📌": "TRUE",
-            "🖼️": "",
-             "🌐": "",
-            "📍location": "Berlin",
-            "status": "inactive",
-            "🔑name": "ngGirls",
-        },
-        {
-            "📌": "TRUE",
-            "🖼️": "",
-             "🌐": "",
-            "📍location": "Budapest",
-            "status": "refactoring",
-            "🔑name": "craft",
-        },
-    ],
-    "STATUS": [
-        {
-            "🔑name": "upcoming",
-            "color": "yellow",
-            "value": "text-bg-warning"
-        },
-        {
-            "🔑name": "done",
-            "color": "green",
-            "value": "text-bg-success"
-        },
-    ]
+
+const IMAGE_NGGIRLS = "https://www.ng-girls.org/favicon.ico";
+const IMAGE_CRAFT = "https://craft-conf.com/images/icons/craft.ico";
+
+const CONFIG = {
+    images: {
+        "ng-girls": IMAGE_NGGIRLS,
+        "craft": IMAGE_CRAFT
+    },
+    locations: {
+        "Berlin": "DE",
+        "Budapest": "HU"
+    }
 }
+
+
+
 const EXPECTED = {
     "📍 LOCATIONS": [
         {
@@ -113,7 +75,7 @@ const EXPECTED = {
         },
     ]
 }
-const EXPECTED_FINAL = {
+const EXPECTED_STEP_2 = {
     configuration: {
         "locations": {
                 "Berlin": "de",
@@ -149,8 +111,19 @@ const EXPECTED_FINAL = {
             },
         ]
     }
-    
 }
+
+export const COLS_CONFIG: SYNONYM_ITEM[] = [
+     { value: '📌', synonym: 'pinned', status: 'active', note: '' },
+    { value: '🖼️', synonym: 'logo', status: '', note: '' },
+    { value: 'title', synonym: '', status: 'active', note: '' },
+    { value: 'status', synonym: '', status: 'active', note: '' },
+    { value: '🔑name', synonym: 'name', status: 'active', note: '' },
+    { value: '🏷️ tags', synonym: 'tags', status: 'active', note: '' },
+    { value: '🌐', synonym: 'country', status: 'active', note: '' },
+    { value: 'note', synonym: 'my-note', status: 'inactive', note: 'not show this tab' },
+]
+
 describe('✅ getTabValue()', () => {
     const FN = getTabValue;
     it('should return the value for the given tab and searched value', () => {
@@ -169,16 +142,54 @@ describe('✅ setTabValue()', () => {
         expect(FN(EXPECTED, '🖼️ ICONS', '', 'NonExisting')).toEqual('');
     });
 });
-describe('✅ fixImages()', () => {
-    const FN = fixImages;
+describe('✅ replaceValues()', () => {
+    const FN = replaceValues;
     it('should fix the image urls', () => {
-        expect(FN(INPUT)).toEqual(EXPECTED);
+        const INPUT: DataList = [
+            {
+                "📌": "TRUE",
+                "🖼️": "",
+                "status": "inactive",
+                "🔑name": "craft",
+                "🌐": "",
+                "📍location": "Budapest",
+            },
+            {
+                "📌": "TRUE",
+                "🖼️": "",
+                "🔑name": "ng-girls",
+                "status": "inactive",
+                "🌐": "",
+                "📍location": "Berlin",
+            }
+        ];
+        const EXPECTED = [
+            {
+                "📌": "TRUE",
+                "🖼️": IMAGE_CRAFT,
+                "🔑name": "craft",
+                "status": "inactive",
+                "🌐": "HU",
+                "📍location": "Budapest",
+            },
+            {
+                "📌": "TRUE",
+                "🖼️": IMAGE_NGGIRLS,
+                "status": "inactive",
+                "🔑name": "ng-girls",
+                "🌐": "DE",
+                "📍location": "Berlin",
+            }
+
+        ];
+        expect(FN(INPUT, CONFIG)).toEqual(EXPECTED);
+
     });
 });
 describe('getFinalData()', () => {
     const FN = getFinalData;
     it('should return the final data structure', () => {
-        expect(FN(EXPECTED)).toEqual(EXPECTED_FINAL);
+        expect(FN(EXPECTED)).toEqual(EXPECTED_STEP_2);
     });
 });
 describe('doCheck()', () => {
@@ -212,5 +223,49 @@ describe('checkKeys()', () => {
         expect(spy).toHaveBeenCalledWith('no type found for tab: tabName');
         expect(FN(['🖼️', 'value'], 'xxx', 'tabName')).toBe(false);
         expect(spy).toHaveBeenCalledWith('no type found for tab: tabName');
+    });
+});
+describe('checkColumns()', () => {
+    const FN = checkColumns;
+    it('should check column keys', () => {
+        const INPUT = [
+                {
+                    "📌": "TRUE",
+                    "🖼️": "https://www.ng-girls.org/favicon.ico",
+                    "status": "inactive",
+                    "note": "dont show this note",
+                    "lorem": "dont show",
+                    "country": "DE",
+                    "🔑name": "ng-girls",
+                },
+                {
+                    "📌": "TRUE",
+                    "🖼️": "https://craft-conf.com/images/icons/craft.ico",
+                    "status": "refactoring",
+                    "note": "refactoring",
+                    "lorem": "dont show",
+                    "country": "HU",
+                    "🔑name": "craft",
+
+                },
+            ];
+        const EXPECTED = [
+                {
+                    "pinned": "TRUE",
+                    "logo": "https://www.ng-girls.org/favicon.ico",
+                    "status": "inactive",
+                    "name": "ng-girls",
+                    "country": "DE"
+                },
+                {
+                    "pinned": "TRUE",
+                    "logo": "https://craft-conf.com/images/icons/craft.ico",
+                    "status": "refactoring",
+                    "name": "craft",
+                    "country": "HU"
+                },
+            ];
+        const result = FN(INPUT, COLS_CONFIG);
+        expect(result).toEqual(EXPECTED);
     });
 });

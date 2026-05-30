@@ -105,7 +105,10 @@
     .portfolio-input:focus { color: var(--pf-text); background: var(--pf-card-2); border-color: var(--pf-accent); box-shadow: 0 0 0 .2rem var(--pf-accent-soft); }
     .portfolio-input::placeholder { color: var(--pf-muted); }
     .portfolio-filter-scroll { overflow-x: auto; padding-bottom: .15rem; scrollbar-width: thin; }
-    .portfolio-filter { flex: 0 0 auto; color: var(--pf-text); border: 1px solid var(--pf-line); background: var(--pf-card-2); border-radius: 999px; }
+    .portfolio-filter { flex: 0 0 auto; color: var(--pf-text); border: 1px solid var(--pf-line); background: var(--pf-card-2); 
+        /* border-radius: var(--bs-border-radius); */
+        border-radius: 999px; 
+    }
     .portfolio-filter span { color: var(--pf-muted); }
     .portfolio-filter:hover,
     .portfolio-filter.active { color: var(--pf-bg); background: var(--pf-accent); border-color: var(--pf-accent); }

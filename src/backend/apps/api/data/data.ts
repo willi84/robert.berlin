@@ -1,6 +1,7 @@
+import { KEY_VALUES } from '../../..';
 import { LOG } from '../../../_shared/log/log';
 import { CONFIG_KEYS } from '../config';
-import type { DATA_CATEGORIES } from "./data.d";
+import type { DATA_CATEGORIES, DataList, REPLACE_CONFIG, SYNONYM_ITEM } from "./data.d";
 
 export const getTabValue = (data: DATA_CATEGORIES, neededTab: string, searchedValue: string) => {
     const value = data[neededTab]?.find((i: any) => i["🔑name"] === searchedValue)?.value;
@@ -17,34 +18,34 @@ export const setTabValue = (data: DATA_CATEGORIES, tab: string, currentValue: an
     }
 }
 
-export const fixImages = (data: DATA_CATEGORIES) => {
-    const TABS = Object.keys(data);
-    for(const tab of TABS) {
-        const items = data[tab];
-        for(const item of items){
-            const keys = Object.keys(item);
-            for(const key of keys){
-                if(item[key].trim() === ''){
-                    const neededTab = TABS.filter(tabI => tabI.indexOf(key) > -1)[0];
-                    if(neededTab){
-                        item[key] = setTabValue(data, neededTab, item[key], item['🔑name']);
-                    } else {
-                        switch(key){
-                            case '🌐':
-                                item[key] = setTabValue(data, '📍 LOCATIONS', item[key], item['📍location']);
-                                break;
-                        }
+export const replaceValues = (items: DataList, config: REPLACE_CONFIG) => {
+    const images = config.images;
+    const locations = config.locations;
+    for(const item of items){
+        const keys = Object.keys(item);
+        for(const key of keys){
+            switch(key){
+                case '🖼️':
+                    const imageKey = item['🔑name'];
+                    if(imageKey && images[imageKey]){
+                        item[key] = images[imageKey];
                     }
-                }
+                    break;
+                case '🌐':
+                    const locationKey = item['📍location'];
+                    if(locationKey && locations[locationKey]){
+                        item[key] = locations[locationKey];
+                    }
+                    break;
             }
         }
     }
-    return data;
+    return items;
 }
 export const getFinalData = (input: DATA_CATEGORIES) => {
     const data: any = {};
     const TABS = Object.keys(input);
-    const configuration: any = {};
+    let configuration: any = {};
     const categories = TABS
                         .filter(tab => !CONFIG_KEYS.some(configKey => tab.toLowerCase().indexOf(configKey.toLowerCase()) > -1))
                         .map(tab => tab.toLowerCase());
@@ -62,11 +63,11 @@ export const getFinalData = (input: DATA_CATEGORIES) => {
         }
     }
     for(const tab of TABS) {
+        // console.log(categories)
         const isCategory = categories.some(category => tab.toLowerCase().indexOf(category) > -1);
         if(isCategory){
             const categoryKey = categories.filter(category => tab.toLowerCase().indexOf(category) > -1)[0];
-            if(categoryKey){
-                console.log('categoryKey', categoryKey);
+            if(categoryKey && Array.isArray(input[tab])){
                 data[categoryKey] = input[tab].map((item: any) => {
                     const newItem: any = {};
                     const keys = Object.keys(item);
@@ -79,6 +80,8 @@ export const getFinalData = (input: DATA_CATEGORIES) => {
                     }
                     return newItem;
                 });
+            } else {
+                configuration = input[tab];
             }
         }
     }
@@ -110,4 +113,61 @@ export const checkKeys = (keys: string[], type: string, tab: string) => {
             LOG.WARN(`no type found for tab: ${tab}`);
             return false;
     }
+}
+export const checkColumns = (items: DataList, colsConfig: SYNONYM_ITEM[]) => {
+    // const categories = Object.keys(data);
+    const mapping: { [key: string]: SYNONYM_ITEM } = {};
+    for(const colConfig of colsConfig){
+        mapping[colConfig.value] = {
+            synonym: colConfig.synonym,
+            status: colConfig.status,
+            value: colConfig.value,
+            note: colConfig.note,
+        }
+    }
+    const synonymKeys = colsConfig.map(col => col.synonym).filter(value => value.trim() !== '');
+    const newItems = [];
+    const result: any = {};
+    // for(const category of categories){
+    //     const items = data[category];
+        for(const item of items){
+                const keys = Object.keys(item);
+                const newItem: any = {};
+                for(const key of keys){
+                    const mapItem: SYNONYM_ITEM | undefined = mapping[key];
+                    if(mapItem){
+                        const status = mapItem.status;
+                        const isActive = status === 'active' || !status;
+                        if(isActive){
+                            const synonym = mapItem?.synonym && mapItem.synonym.trim() !== '' ? mapItem.synonym : null;
+                            if(synonym){
+                                newItem[synonym] = item[key];
+                            } else {
+                                newItem[key] = item[key];
+                            }
+                        } else {
+                            console.log('filtered', key, item[key])
+                        }
+                    } else {
+                        // Workaround
+                        if(synonymKeys.includes(key)){
+                            newItem[key] = item[key];
+                        } else {
+                            console.log('no mapping for', key, item[key])
+                        }
+                        // dont show if not defined
+                    }
+                }
+                newItems.push(newItem);
+        }
+        // result[category] = newItems;
+    // }
+    return newItems;
+}
+export const getKeyValuePairs = (items: DataList): KEY_VALUES => {
+    const result: any = {};
+    for(const item of items){
+        result[item['🔑name']] = item.value;
+    }
+    return result;
 }
