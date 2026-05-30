@@ -1,6 +1,10 @@
 import { getElement, getElements } from '../../../_shared/select/select';
 
-const getSearchValue = (element: HTMLInputElement): string => element.value.trim().toLowerCase();
+const getSearchValue = (element: HTMLInputElement): string => element.value
+                                                                .trim().toLowerCase()
+                                                                // sanitize xss
+                                                                .replace(/</g, '&lt;')
+                                                                .replace(/>/g, '&gt;');
 
 const updateProjectVisibility = (cards: HTMLElement[], query: string): number => {
     let visibleCount = 0;
