@@ -14,7 +14,7 @@
     {% endif %} 
     class="{{ css }} {{params.class_modifier}}" href="{{ params.url | url | safe}}"
     >
-    {{ params.text }}
+    <span data-search-mark>{{ params.text }}</span>
     {% if params.post_html %}
         {{params.post_html | safe}}
     {% endif %}

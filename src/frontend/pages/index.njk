@@ -77,7 +77,7 @@ footer: true
                     })
                 }}
             </div>
-            <div class="col-12 col-lg-4 portfolio-actions">
+            <div class="col-12 col-lg-4 portfolio-actions mt-0">
                 {{
                     component("dropdown", {
                         values: [ 'date-desc','date-asc', 'title-asc', 'title-desc', 'status-asc', 'status-desc'],
@@ -164,19 +164,19 @@ footer: true
                                 lazy: true
                             })
                         }}
-                        {{event.start}} {% if event.end is defined and event.end != "" %} - {{ event.end }}  {% endif %}
+                        <span data-search-mark>{{event.start}}</span>{% if event.end is defined and event.end != "" %} - <span data-search-mark>{{ event.end }}</span>{% endif %}
                         &nbsp; - &nbsp;
                         {% if event.url %}
                             {{ component("link", { url: event.url, text: event.title, css: "fw-semibold text-decoration-none", target: "_blank" }) }}
                         {% else %}
-                            <strong>{{ event.title }}</strong>
+                            <strong data-search-mark>{{ event.title }}</strong>
                         {% endif %}
                         
                         
                         
                         {% if event['location'] %}
                             <span>
-                                (📍 {{ event['location'] }})
+                                (📍 <span data-search-mark>{{ event['location'] }}</span>)
                             
                             </span>
                         {% endif %}
@@ -243,8 +243,8 @@ footer: true
                         <div class="portfolio-content">
                             <div class="portfolio-item-top">
                                 <div class="min-w-0">
-                                    <p class="portfolio-path mb-1">{{ category }}/{{ item.name | lower | replace(' ', '-') }}</p>
-                                    <h3 class="portfolio-item-title mb-0">{{ item.title }}</h3>
+                                    <p class="portfolio-path mb-1"  data-search-mark>{{ category }}/{{ item.name | lower | replace(' ', '-') }}</p>
+                                    <h3 class="portfolio-item-title mb-0"  data-search-mark>{{ item.title }}</h3>
                                 </div>
                                 {% if item.pinned == "TRUE" %}
                                     <span class="portfolio-pin" title="Hervorgehoben">📌</span>

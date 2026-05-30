@@ -74,8 +74,6 @@ export const createDropdowns = () => {
                 themeButtons.forEach((button) => {
                         button.addEventListener('click', () => {
                             const value = button.dataset.option ?? DEFAULT_VALUE;
-                            console.log(value);
-                            console.log(SORT_TARGET);
                             document.documentElement.setAttribute(`data-${KEY}`, value);
                             save(KEY, value);
                             if(SORT_TARGET){
