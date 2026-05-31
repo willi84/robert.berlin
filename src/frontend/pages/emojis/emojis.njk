@@ -4,9 +4,15 @@ title: Emoji Search
 navigation: true
 footer: true
 permalink: /emojis/index.html
+menu:
+  label: Emojis
+  emoji: 😀
+  order: 20
 ---
 
 {%- from "./../../templates/_setup/macros/component.macro.njk" import component -%}
+
+{% set currentPath = "~/" if page.url == "/" else "~" ~ page.url %}
 
 {% set emojiList = emojis | default([]) %}
 {% set sheetUrl = "https://docs.google.com/spreadsheets/d/" ~ build.SHEET_ID ~ "/edit?gid=" ~ build.EMOJI_TAB %}
@@ -15,14 +21,16 @@ permalink: /emojis/index.html
 <section class="container py-4 py-lg-5">
     <div class="row justify-content-center">
         <div class="col-12 col-xl-10">
-            <header class="mb-4">
-                <p class="text-uppercase text-muted mb-2">Example Page</p>
-                <h1 class="mb-2">🔎 Emoji suchen und kopieren</h1>
-                <p class="text-muted mb-0">Suche in Deutsch, Englisch und Tags. Klick auf eine Box kopiert das Emoji.</p>
-            </header>
-
             <div class="card shadow-sm border-0 mb-4">
-                <div class="card-body p-3">
+                <div class="card-body p-3 p-lg-4">
+                    {{
+                        component("menu", {
+                            page: page,
+                            main: main,
+                            title: "🔎 Emojis",
+                            subtitle: "Suchen und einfaches Kopieren von Emojis"
+                        })
+                    }}
                     {{
                         component("search", {
                             label: "Suche",

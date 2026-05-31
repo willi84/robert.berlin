@@ -1,5 +1,5 @@
 import { FS } from "../../_shared/fs/fs";
-import { convertText2JSON, getCellValue, getHeaders, getProjects, getSheetTab } from '../../_shared/google/google';
+import { convertText2JSON, getCellValue, getHeaders, getProjects, getRawData, getSheetTab } from '../../_shared/google/google';
 import { LOG } from "../../_shared/log/log";
 import type{ DATA_CATEGORIES, DataList, REPLACE_CONFIG, SYNONYM_ITEM } from './data/data.d';
 import { checkKeys, replaceValues, getFinalData, checkColumns, getKeyValuePairs } from './data/data';
@@ -9,6 +9,9 @@ const TARGET_ID = "1R6C_CmAt8Z6-fMObyP355mZJM71cQ4dJPXmS-fhk1pQ";
 const OUTPUT_PATH = "src/_data/projects.json";
 const FINAL_PATH = "src/_data/all.json";
 const EMOJI_PATH = "src/_data/emojis.json";
+const CRAFT_PATH = "src/_data/craft.json";
+
+const CRAFT_URL = "https://craft-schedule.vercel.app/api/";
 
 const CONFIG_TAB = '⚙️ CONFIG';
 const COLUMNS_TAB = 'COLUMNS';
@@ -75,6 +78,9 @@ const main = async () => {
         const TABS_EMOJIS = 'EMOJIS';
         let dataEmojis: any = await getSheetTab(TARGET_ID, TABS_EMOJIS, []);
         FS.writeFile(EMOJI_PATH, dataEmojis);
+
+        let craftData: any = await getRawData(CRAFT_URL);
+        FS.writeFile(CRAFT_PATH, craftData);
 
 
     } catch (error) {

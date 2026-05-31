@@ -20,18 +20,36 @@
 
 {% set mainClass = "container xx" if not full_content else "" %}
 <body>
-    <div class="container">
-        {# navigation #}
-        {% if navigation == true %}
-            {{
-                component("navigation", {
-                    main: main,
-                    config: build
-                })
-            }}
-        {% endif %}
+    {% if navigation == true %}
+        {% set menuItems = collections.menuPages | default([]) %}
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="mainNav" aria-labelledby="mainNavLabel">
+            <div class="offcanvas-header border-bottom">
+                <div>
+                    <p class="text-muted text-uppercase small mb-1">Navigation</p>
+                    <h2 class="offcanvas-title h5 mb-0" id="mainNavLabel">{{ menu.label or title }}</h2>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Schließen"></button>
+            </div>
+            <div class="offcanvas-body">
+                <p class="text-muted small mb-3">{{ page.url }}</p>
+                <ul class="navbar-nav gap-2">
+                    {% for item in menuItems %}
+                        <li class="nav-item">
+                            <a
+                                class="nav-link{% if page.url == item.url %} active fw-semibold{% endif %}"
+                                href="{{ item.url }}"
+                                {% if page.url == item.url %}aria-current="page"{% endif %}>
+                                {% if item.emoji %}<span class="me-2">{{ item.emoji }}</span>{% endif %}
+                                {{ item.title }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
-        <div class="{{mainClass}}">
+    {% endif %}
+
+    <div class="{{mainClass}}">
 
         {% if content %}
             {{ content | safe }}

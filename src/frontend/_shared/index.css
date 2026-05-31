@@ -12,7 +12,12 @@
     display: none !important;
 }
 
-
+.text--standard{
+    font-size: var(--font-size-standard);
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+}
 
 
 body{

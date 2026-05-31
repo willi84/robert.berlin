@@ -7,6 +7,7 @@ import { LOG } from './src/backend/_shared/log/log';
 const { EleventyRenderPlugin } = require("@11ty/eleventy");
 import { filterUpcomingEvents } from './src/setup/filters/upcomingEvents/upcomingEvents.ts';
 import { getSearchValueFilter } from './src/setup/filters/getSearchValue/getSearchValue.filter.ts';
+import { getFullDate } from './src/setup/filters/getFullDate/getFullDate.filter.ts';
 // console.log(config)
 
 // .eleventy.config.ts
@@ -72,6 +73,19 @@ eleventyConfig.on('eleventy.after', async () => {
     // expose project config globally to nunjucks
     eleventyConfig.addNunjucksGlobal('config', config);
 
+    eleventyConfig.addCollection('menuPages', (collectionApi: any) => {
+        return collectionApi
+            .getFilteredByGlob(`./${config.INPUT_CONTENT}/**/*.njk`)
+            .filter((item: any) => item.data?.navigation === true && item.data?.menu)
+            .map((item: any) => ({
+                url: item.url,
+                title: item.data.menu.label || item.data.title || '',
+                emoji: item.data.menu.emoji || '',
+                order: item.data.menu.order || 0,
+            }))
+            .sort((left: any, right: any) => left.order - right.order);
+    });
+
     // nunjucks filters
     eleventyConfig.addNunjucksFilter('route', routeFilter);
     eleventyConfig.addNunjucksFilter('prettyDate', prettyDateFilter);
@@ -90,7 +104,7 @@ eleventyConfig.on('eleventy.after', async () => {
     eleventyConfig.addNunjucksFilter('flag', flagFilter);
     eleventyConfig.addNunjucksFilter('getUpcomingEvents', filterUpcomingEvents);
     eleventyConfig.addNunjucksFilter('getSearchValue', getSearchValueFilter);
-
+    eleventyConfig.addNunjucksFilter('getFullDate', getFullDate);
     // vite shortcodes
     eleventyConfig.addNunjucksAsyncShortcode('viteScriptTag', viteScriptTag);
     eleventyConfig.addNunjucksAsyncShortcode('viteLegacyScriptTag', viteLegacyScriptTag);

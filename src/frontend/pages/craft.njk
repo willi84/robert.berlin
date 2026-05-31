@@ -1,0 +1,217 @@
+---
+layout: base.template.njk
+title: Craft Conference Talks
+navigation: true
+footer: true
+menu:
+  label: Craft
+  emoji: 🎤
+  order: 20
+---
+
+{%- from "./../templates/_setup/macros/component.macro.njk" import component -%}
+
+{% set talkStages = craft.data.stages | dictsort %}
+
+<section class="portfolio-shell" data-portfolio data-view="cards" data-theme="dark">
+    <div class="container py-4 py-lg-5">
+        {{
+            component("menu", {
+                page: page,
+                url: "/craft",
+                main: main,
+                title: "Craft Conference 2026",
+                subtitle: "Browse all talks grouped by stage.",
+                state: "live",
+                views: [{ key: 'cards', label: '▦ Cards'}, { key: 'list', label: '☰ List' }]
+            })
+        }}
+
+        <section search-context>
+            <nav class="portfolio-toolbar mb-4 z-2 position-relative" aria-label="Craft talks filters">
+                <div class="row g-3 align-items-center">
+                    <div class="col-12 col-lg-8">
+                        {{
+                            component("search", {
+                                label: "Search Craft talks",
+                                class: "portfolio-input",
+                                placeholder: "grep: title, speaker, stage, tags, description ..."
+                            })
+                        }}
+                    </div>
+                    <div class="col-12 col-lg-12">
+                        <div class="portfolio-filter-scroll gap-2 justify-content-lg-end" data-category-filter>
+                            {{
+                                component("filter-button", {
+                                    key: "all",
+                                    label: "All",
+                                    css: 'mb-2',
+                                    length: craft.data.talks | length
+                                })
+                            }}
+                            {% for stageName, stageData in talkStages %}
+                                {{
+                                    component("filter-button", {
+                                        key: stageName,
+                                        label: stageName,
+                                        css: 'mb-2',
+                                        length: stageData.talks | length
+                                    })
+                                }}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            {% for stageName, stageData in talkStages %}
+                {% set stageColor = '#' + stageData.color %}
+                {% set stageTextColor = '#ffffff' if stageData.color | lower == '000000' else stageColor %}
+                <section class="portfolio-category mb-5" data-category-section="{{ stageName }}">
+                    <div class="portfolio-category-head d-flex align-items-end justify-content-between gap-3 mb-3">
+                        <div>
+                            <p class="portfolio-kicker mb-1">stage</p>
+                            <h2 class="h4 mb-0">
+                                <span class="craft-stage-name" style="--craft-stage-color: {{ stageColor }}; --craft-stage-text: {{ stageTextColor }};">{{ stageName }}</span>
+                            </h2>
+                        </div>
+                        <span class="portfolio-count"><span data-count>{{ stageData.talks | length }}</span> talks</span>
+                    </div>
+
+                    <div class="portfolio-grid">
+                        {% for talkId in stageData.talks %}
+                            {% set talk = craft.data.talks[talkId] %}
+                            {% set hasLongDescription = (talk.description | default('') | length) > 360 %}
+                            {% set searchValue %}
+                                {{ talk.title | default('') | lower }}
+                                {{ talk.stage | default('') | lower }}
+                                {{ talk.day | default('') | lower }}
+                                {{ talk.startTime | default('') | lower }}
+                                {{ talk.endTime | default('') | lower }}
+                                {{ talk.level | default('general') | lower }}
+                                {{ talk.description | default('') | lower }}
+                                {% for speaker in talk.speakers | default([]) %}
+                                    {{ speaker.name | lower }}
+                                {% endfor %}
+                                {% for tag in talk.tags | default([]) %}
+                                    {{ tag.name | lower }}
+                                {% endfor %}
+                            {% endset %}
+                            {% set speakerNames %}
+                                {% for speaker in talk.speakers | default([]) %}
+                                    {{ speaker.name }}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            {% endset %}
+                            {% set tagNames %}
+                                {% for tag in talk.tags | default([]) %}
+                                    {{ tag.name }}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            {% endset %}
+
+                            <article
+                                class="portfolio-item"
+                                data-search-item
+                                data-category="{{ stageName }}"
+                                data-search="{{ searchValue | trim }}"
+                                data-title="{{ talk.title | default('') | lower }}"
+                                data-status="{{ talk.level | default('general') | lower }}"
+                                data-start="{{ talk.day | default('') }} {{ talk.startTime | default('') }}"
+                                data-pinned="{% if talk.is_keynote %}1{% else %}0{% endif %}">
+                                <div class="portfolio-visual craft-speakers-visual">
+                                    {% if talk.speakers | length %}
+                                        <div class="craft-speaker-gallery" aria-label="Speakers for {{ talk.title }}">
+                                            {% for speaker in talk.speakers %}
+                                                {% set speakerProfile = craft.data.speakers[speaker.slug] | default({}) %}
+                                                {% set speakerImage = 'https://craft-conf.com' + speakerProfile.image if speakerProfile.image else '' %}
+                                                <figure class="craft-speaker-avatar" title="{{ speaker.name }}">
+                                                    {% if speakerImage %}
+                                                        <img
+                                                            class="craft-speaker-image"
+                                                            src="{{ speakerImage }}"
+                                                            alt="Speaker photo of {{ speaker.name }}"
+                                                            width="96"
+                                                            height="96"
+                                                            loading="lazy">
+                                                    {% else %}
+                                                        <span class="craft-speaker-placeholder" aria-hidden="true">{{ speaker.name | first | upper }}</span>
+                                                    {% endif %}
+                                                    <figcaption>{{ speaker.name }}</figcaption>
+                                                </figure>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <div class="portfolio-iconbox" aria-hidden="true">
+                                            <span style="font-size: 2rem; line-height: 1;">🎤</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="portfolio-content">
+                                    <div class="portfolio-item-top">
+                                        <div class="min-w-0">
+                                            <p class="portfolio-path mb-1" data-search-mark>craft/{{ stageName | lower | replace(' ', '-') }}</p>
+                                            <h3 class="portfolio-item-title mb-0" data-search-mark>{{ talk.title }}</h3>
+                                        </div>
+                                        {% if talk.is_keynote %}
+                                            <span class="portfolio-pin" title="Keynote">⭐</span>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="portfolio-badges">
+                                        {{ component("badge", { text: talk.day, css: "text-bg-secondary" }) }}
+                                        {{ component("badge", { text: talk.startTime + ' - ' + talk.endTime, css: "text-bg-dark" }) }}
+                                        {{ component("badge", { text: talk.level, css: "portfolio-muted-badge" }) }}
+                                        <span class="badge craft-stage-badge" style="--craft-stage-color: {{ stageColor }}; --craft-stage-text: {{ stageTextColor }};">{{ talk.stage }}</span>
+                                        {% if talk.is_keynote %}
+                                            {{ component("badge", { text: "Keynote", css: "text-bg-warning" }) }}
+                                        {% endif %}
+                                    </div>
+
+                                    {% if talk.description %}
+                                        {% if hasLongDescription %}
+                                            <details class="craft-description-toggle">
+                                                <summary>Show more</summary>
+                                                <div class="craft-description-content">
+                                                    <p class="portfolio-description mb-0">{{ talk.description }}</p>
+                                                </div>
+                                            </details>
+                                        {% else %}
+                                            <p class="portfolio-description">{{ talk.description }}</p>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    <dl class="portfolio-meta">
+                                        {% if speakerNames | trim %}
+                                            {{ component("key_value", { key: "speaker", value: speakerNames | trim }) }}
+                                        {% endif %}
+                                        <div>
+                                            <dt>stage</dt>
+                                            <dd data-search-mark>
+                                                <span class="craft-stage-inline" style="--craft-stage-color: {{ stageColor }}; --craft-stage-text: {{ stageTextColor }};">{{ talk.stage }}</span>
+                                            </dd>
+                                        </div>
+                                        {{ component("key_value", { key: "time", value: talk.startTime + ' - ' + talk.endTime }) }}
+                                        {% if tagNames | trim %}
+                                            {{ component("key_value", { key: "tags", value: tagNames | trim }) }}
+                                        {% endif %}
+                                    </dl>
+
+                                    <div class="portfolio-links">
+                                        {% if talk.video_url %}
+                                            {{ component("link", { url: talk.video_url, text: "video", css: "btn btn-sm portfolio-link", target: "_blank" }) }}
+                                        {% endif %}
+                                        {% if talk.slides_url %}
+                                            {{ component("link", { url: talk.slides_url, text: "slides", css: "btn btn-sm portfolio-link", target: "_blank" }) }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endfor %}
+
+            <p class="portfolio-empty d-none" data-search-empty>No matching talks found.</p>
+        </section>
+    </div>
+</section>

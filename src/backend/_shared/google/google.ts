@@ -76,7 +76,7 @@ export const getProjects = (rawText: string): ProjectItem[] => {
         .filter((item) => Object.values(item).some((value) => value.trim() !== ""));
 };
 
-const getSheetText = async (url: string): Promise<string> => {
+export const getSheetText = async (url: string): Promise<string> => {
     const response = await fetch(url);
     if (!response.ok) {
         throw new Error(`Google Sheet request failed with status ${response.status}`);
@@ -101,6 +101,16 @@ export const filterItems = (projects: any[], filterColumns: string[]) => {
         }
     }
     return newProjects;
+}
+export const getRawData = async (url: string): Promise<any> => {
+    const rawText: string = await getSheetText(url);
+    let response = {};
+    try {
+        response = JSON.parse(rawText);
+    } catch(error) {
+        LOG.WARN(`Failed to parse JSON from ${url}: ${error instanceof Error ? error.message : `${error}`}`);
+    }
+    return response;
 }
 
 export const getSheetTab = async (id: string, tab: string, filterColumns: string[]): Promise<ProjectItem[]> => {
