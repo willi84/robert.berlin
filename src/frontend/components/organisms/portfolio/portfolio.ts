@@ -36,76 +36,205 @@ const formatCountdown = (target: Date, now: Date): $string => {
     return `in ${minutes} min`;
 };
 
-// const setupUpcomingEvents = (root: HTMLElement) => {
-//     const upcomingList = getElement(root, '[data-upcoming-list]');
-//     if (!upcomingList) return;
+const getSearchQuery = (value = ''): string => value
+    .trim()
+    .toLowerCase()
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 
-//     const count = getElement(root, '[data-upcoming-count]');
-//     const items = getElements(upcomingList, '[data-upcoming-item]');
-//     const today = new Date();
+const getStageIds = (value = ''): string[] => value
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
 
-//     today.setHours(0, 0, 0, 0);
+const matchesStageIds = (value: string, stageIds: string[]): boolean => {
+    const currentIds = getStageIds(value);
+    return stageIds.some((stageId) => currentIds.includes(stageId));
+};
 
-//     let visibleCount = 0;
-//     console.log(items);
+const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElement[], viewButtons: HTMLButtonElement[], empty: HTMLElement | null) => {
+    const searchInput = getElement<HTMLInputElement>(root, '[data-search-input]');
+    const scheduleItems = getElements(root, '[data-schedule-item]');
+    const scheduleDays = getElements(root, '[data-schedule-day]');
+    const talkItems = getElements(root, '[data-talk-item]');
+    const mapRoot = getElement(root, '[data-craft-map]');
 
-//     items
-//         .sort((first, second) => {
-//             const firstDate = parseEventDate(first.dataset.eventStart);
-//             const secondDate = parseEventDate(second.dataset.eventStart);
+    if (scheduleItems.length === 0 && !mapRoot) {
+        return;
+    }
 
-//             firstDate?.setHours(0, 0, 0, 0);
-//             secondDate?.setHours(0, 0, 0, 0);
+    let currentCategory = 'all';
+    let currentView = root.dataset.view || 'cards';
+    let currentStageIds: string[] = [];
+    let hoveredStageIds: string[] = [];
 
-//             return (firstDate?.getTime() || Number.MAX_SAFE_INTEGER) - (secondDate?.getTime() || Number.MAX_SAFE_INTEGER);
-//         })
-//         .forEach((item) => {
-//             const target = parseEventDate(item.dataset.eventStart);
-//             const countdown = getElement(item, '[data-event-countdown]');
+    const stageIds = new Set<string>();
+    talkItems.forEach((item) => getStageIds(item.dataset.stageSvgIds).forEach((stageId) => stageIds.add(stageId)));
+    filterButtons.forEach((button) => getStageIds(button.dataset.stageSvgIds).forEach((stageId) => stageIds.add(stageId)));
 
-//             if (target) {
-//                 target.setHours(0, 0, 0, 0);
-//             }
+    const stageElementMap = new Map<string, HTMLElement[]>();
+    const stageButtonMap = new Map<string, HTMLButtonElement>();
 
-//             const isVisible = true; // Boolean(target && target.getTime() >= today.getTime());
+    if (mapRoot) {
+        stageIds.forEach((stageId) => {
+            const matchedElements = Array.from(mapRoot.querySelectorAll<HTMLElement>(`#${stageId}`));
+            if (matchedElements.length === 0) return;
 
-//             item.classList.toggle('d-none', !isVisible);
-//             if (!isVisible || !target) return;
+            matchedElements.forEach((element) => {
+                element.classList.add('craft-map-stage');
+                element.setAttribute('tabindex', '0');
+                element.setAttribute('role', 'button');
+                element.setAttribute('aria-label', `Highlight ${stageId.replace(/_/g, ' ').toLowerCase()}`);
+            });
 
-//             upcomingList.appendChild(item);
-//             visibleCount += 1;
+            stageElementMap.set(stageId, matchedElements);
+        });
+    }
 
-//             const diffDays = (target.getTime() - today.getTime()) / DAY_IN_MS;
-//             const showCountdown = diffDays <= COUNTDOWN_LIMIT_DAYS;
+    filterButtons.forEach((button) => {
+        const ids = getStageIds(button.dataset.stageSvgIds);
+        ids.forEach((stageId) => {
+            if (!stageButtonMap.has(stageId)) {
+                stageButtonMap.set(stageId, button);
+            }
+        });
+    });
 
-//             countdown?.classList.toggle('d-none', !showCountdown);
+    const applyMapHighlight = () => {
+        const activeIds = new Set(hoveredStageIds.length > 0 ? hoveredStageIds : currentStageIds);
+        const hasActiveIds = activeIds.size > 0;
 
-//             if (countdown && showCountdown) {
-//                 countdown.textContent = formatCountdown(target, today);
-//             }
-//         });
+        stageElementMap.forEach((elements, stageId) => {
+            const isActive = activeIds.has(stageId);
+            elements.forEach((element) => {
+                element.classList.toggle('is-active', isActive);
+                element.classList.toggle('is-dimmed', hasActiveIds && !isActive);
+            });
+        });
+    };
 
-//     if (count) count.textContent = `${visibleCount} geplant`;
-//     upcomingList.parentElement?.classList.toggle('d-none', visibleCount === 0);
-// };
+    const applyScheduleFilters = () => {
+        if (scheduleItems.length === 0) {
+            return;
+        }
 
+        const query = getSearchQuery(searchInput?.value || '');
+        let visibleCount = 0;
+
+        scheduleItems.forEach((item) => {
+            const matchesCategory = currentCategory === 'all' || item.dataset.category === currentCategory;
+            const matchesSearch = !query || (item.dataset.search || '').includes(query);
+            const isVisible = matchesCategory && matchesSearch;
+
+            item.classList.toggle('d-none', !isVisible);
+            visibleCount += isVisible ? 1 : 0;
+        });
+
+        scheduleDays.forEach((day) => {
+            const visibleItems = day.querySelectorAll('[data-schedule-item]:not(.d-none)').length;
+            day.classList.toggle('d-none', visibleItems === 0);
+        });
+
+        if (empty) {
+            empty.classList.toggle('is-visible', visibleCount === 0);
+            empty.classList.toggle('d-none', visibleCount !== 0);
+        }
+    };
+
+    const syncCurrentStage = () => {
+        const activeButton = filterButtons.find((button) => button.classList.contains('active'));
+        currentCategory = activeButton?.dataset.filterButton || 'all';
+        currentStageIds = getStageIds(activeButton?.dataset.stageSvgIds || '');
+        applyScheduleFilters();
+        applyMapHighlight();
+    };
+
+    const bindHoverHighlight = (element: HTMLElement) => {
+        const stageIdsOfElement = getStageIds(element.dataset.stageSvgIds || '');
+        if (stageIdsOfElement.length === 0) return;
+
+        const activate = () => {
+            hoveredStageIds = stageIdsOfElement;
+            applyMapHighlight();
+        };
+
+        const deactivate = () => {
+            hoveredStageIds = [];
+            applyMapHighlight();
+        };
+
+        element.addEventListener('mouseenter', activate);
+        element.addEventListener('mouseleave', deactivate);
+        element.addEventListener('focusin', activate);
+        element.addEventListener('focusout', deactivate);
+    };
+
+    talkItems.forEach(bindHoverHighlight);
+    filterButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            syncCurrentStage();
+        });
+        bindHoverHighlight(button);
+    });
+
+    if (mapRoot) {
+        stageElementMap.forEach((elements, stageId) => {
+            const relatedButton = stageButtonMap.get(stageId);
+
+            const activate = () => {
+                hoveredStageIds = [stageId];
+                applyMapHighlight();
+            };
+
+            const deactivate = () => {
+                hoveredStageIds = [];
+                applyMapHighlight();
+            };
+
+            const select = () => {
+                relatedButton?.click();
+            };
+
+            elements.forEach((element) => {
+                element.addEventListener('mouseenter', activate);
+                element.addEventListener('mouseleave', deactivate);
+                element.addEventListener('focus', activate);
+                element.addEventListener('blur', deactivate);
+                element.addEventListener('click', select);
+                element.addEventListener('keydown', (event: KeyboardEvent) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        select();
+                    }
+                });
+            });
+        });
+    }
+
+    searchInput?.addEventListener('input', applyScheduleFilters);
+
+    viewButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            currentView = button.dataset.viewButton || 'cards';
+            root.dataset.view = currentView;
+            applyScheduleFilters();
+        });
+    });
+
+    syncCurrentStage();
+};
 
 export const createPortfolio = (base: any = document) => {
     const root: $HTMLElement = getElement(base as HTMLElement, '[data-portfolio]');
     if (!root) return;
 
-    // const searchInput = getElement<HTMLInputElement>(root, '[data-search-input]');
-    // const items = getElements(root, '[data-search-item]');
-    // const sections = getElements(root, '[data-category-section]');
     const filterButtons = getButtons(root, '[data-filter-button]');
     const viewButtons = getButtons(root, '[data-view-button]');
     const empty = getElement(root, '[data-search-empty]');
 
     const storageKey = 'portfolio-ui';
     const stored = JSON.parse(localStorage.getItem(storageKey) || '{}');
-    let currentCategory = 'all';
     let currentView = stored.view || 'cards';
-
 
     const save = () => localStorage.setItem(storageKey, JSON.stringify({ view: currentView }));
 
@@ -113,38 +242,6 @@ export const createPortfolio = (base: any = document) => {
         root.dataset.view = currentView;
         viewButtons.forEach((button) => button.classList.toggle('active', button.dataset.viewButton === currentView));
     };
-
-    // const applyFilters = () => {
-    //     const query = (searchInput?.value || '').trim().toLowerCase();
-    //     let visibleCount = 0;
-
-    //     items.forEach((item) => {
-    //         const matchesCategory = currentCategory === 'all' || currentCategory === 'upcoming' || item.dataset.category === currentCategory;
-    //         const matchesSearch = !query || (item.dataset.search || '').includes(query);
-    //         const visible = matchesCategory && matchesSearch;
-    //         item.classList.toggle('d-none', !visible);
-    //         if (visible) visibleCount += 1;
-    //     });
-    //     sections.forEach((section) => {
-    //         const hasVisibleItems = section.querySelectorAll('article:not(.d-none)').length > 0;
-    //         // console.log(section, hasVisibleItems);
-    //         // const hasVisibleItems = section.querySelectorAll('[data-search-item]:not(.d-none)').length > 0;
-    //         section.classList.toggle('d-none', !hasVisibleItems);
-    //     });
-
-    //     filterButtons.forEach((button) => {
-    //         button.classList.toggle('active', button.dataset.filterButton === currentCategory);
-    //     });
-
-    //     empty?.classList.toggle('d-none', visibleCount > 0);
-    // };
-
-    filterButtons.forEach((button) => {
-        // button.addEventListener('click', () => {
-        //     currentCategory = button.dataset.filterButton || 'all';
-        //     applyFilters();
-        // });
-    });
 
     viewButtons.forEach((button) => {
         button.addEventListener('click', () => {
@@ -154,9 +251,6 @@ export const createPortfolio = (base: any = document) => {
         });
     });
 
-    // searchInput?.addEventListener('input', applyFilters);
-
-    // setupUpcomingEvents(root);
     applyView();
-    // applyFilters();
+    applyCraftExperience(root as HTMLElement, filterButtons, viewButtons, empty);
 };

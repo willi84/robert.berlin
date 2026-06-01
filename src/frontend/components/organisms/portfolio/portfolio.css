@@ -376,3 +376,176 @@
             border-bottom: 1px solid var(--pf-line);
         }
     }
+
+.craft-map-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+    gap: 1.25rem;
+    align-items: start;
+    padding: 1rem;
+    border: 1px solid var(--pf-line);
+    border-radius: 1.25rem;
+    background: color-mix(in srgb, var(--pf-panel) 88%, transparent);
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, .18);
+    backdrop-filter: blur(12px);
+}
+
+.craft-map-panel-copy {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.craft-map-frame {
+    padding: 1rem;
+    border: 1px solid var(--pf-line);
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--pf-card) 92%, transparent);
+}
+
+.craft-map-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.craft-map-stage {
+    cursor: pointer;
+    transition: opacity .18s ease, filter .18s ease, transform .18s ease;
+    outline: none;
+}
+
+.craft-map-stage.is-dimmed {
+    opacity: .2;
+    filter: saturate(.35);
+}
+
+.craft-map-stage.is-active,
+.craft-map-stage:focus {
+    opacity: 1;
+    filter: drop-shadow(0 0 1rem color-mix(in srgb, var(--pf-accent) 45%, transparent));
+}
+
+.craft-map-stage.is-active path,
+.craft-map-stage:focus path,
+.craft-map-stage.is-active {
+    stroke: #ffffff;
+    stroke-width: 4px;
+}
+
+.craft-cards-view {
+    display: block;
+}
+
+.craft-schedule-view {
+    display: none;
+}
+
+.craft-schedule-day-head {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+}
+
+.craft-schedule-slots {
+    display: grid;
+    gap: 1rem;
+}
+
+.craft-schedule-slot {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+}
+
+.craft-schedule-time,
+.craft-schedule-talk {
+    border: 1px solid var(--pf-line);
+    background: color-mix(in srgb, var(--pf-panel) 88%, transparent);
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, .18);
+    backdrop-filter: blur(12px);
+}
+
+.craft-schedule-time {
+    display: grid;
+    gap: .15rem;
+    padding: .9rem;
+    border-radius: 1rem;
+    text-align: center;
+    color: var(--pf-text);
+    position: sticky;
+    top: 1rem;
+}
+
+.craft-schedule-time span {
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.craft-schedule-time small {
+    color: var(--pf-muted);
+    font-size: .78rem;
+}
+
+.craft-schedule-talks {
+    display: grid;
+    gap: .85rem;
+}
+
+.craft-schedule-talk {
+    display: grid;
+    gap: .75rem;
+    padding: 1rem;
+    border-radius: 1rem;
+    transition: transform .16s ease, border-color .16s ease;
+}
+
+.craft-schedule-talk:hover,
+.craft-schedule-talk:focus-within {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--pf-accent) 60%, var(--pf-line));
+}
+
+.craft-schedule-talk-head {
+    display: flex;
+    justify-content: space-between;
+    gap: .75rem;
+    align-items: start;
+}
+
+.craft-schedule-talk-title {
+    color: var(--pf-text);
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.25;
+}
+
+.craft-schedule-talk-speakers {
+    color: var(--pf-muted);
+    font-size: .85rem;
+}
+
+.portfolio-shell[data-view="schedule"] .craft-cards-view {
+    display: none;
+}
+
+.portfolio-shell[data-view="schedule"] .craft-schedule-view {
+    display: block;
+}
+
+@media (max-width: 991.98px) {
+    .craft-map-panel {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .craft-schedule-slot {
+        grid-template-columns: 1fr;
+    }
+
+    .craft-schedule-time {
+        position: static;
+    }
+}
