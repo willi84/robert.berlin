@@ -120,4 +120,5 @@ const days = Array.from(dayMap.values()).map((dayEntry) => ({
 module.exports = {
     stageEntries,
     days,
+    talks,
 };

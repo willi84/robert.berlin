@@ -13,6 +13,7 @@ menu:
 
 {% set stageEntries = craftSchedule.stageEntries %}
 {% set scheduleDays = craftSchedule.days %}
+{% set talks = craftSchedule.talks %}
 
 <section class="portfolio-shell" data-portfolio data-view="cards" data-theme="dark">
     <div class="container py-4 py-lg-5">
@@ -41,9 +42,55 @@ menu:
                         <h2 id="craft-map-title" class="h4 mb-0">Stage map</h2>
                         <p class="portfolio-description mb-0">Hover a talk or choose a stage to highlight its position on the venue map.</p>
                     </div>
+                    <section class="craft-search-results d-none" data-craft-search-results aria-live="polite">
+                        <div class="craft-search-results-head">
+                            <div>
+                                <p class="portfolio-kicker mb-1">results</p>
+                                <h3 class="h6 mb-0">Matching talks</h3>
+                            </div>
+                            <span class="portfolio-count"><span data-craft-results-count>0</span> talks</span>
+                        </div>
+
+                        <div class="craft-search-results-list" data-craft-results-list>
+                            {% for talk in talks %}
+                                <article
+                                    class="craft-search-result-item d-none"
+                                    data-craft-result-item
+                                    data-search="{{ talk.searchValue }}"
+                                    data-category="{{ talk.stage }}"
+                                    data-day="{{ talk.day }}"
+                                    data-start-time="{{ talk.startTime }}"
+                                    data-stage-svg-ids="{{ talk.stageSvgIds | join(',') }}">
+                                    <div class="craft-search-result-time">
+                                        <span>{{ talk.day }}</span>
+                                        <small>{{ talk.startTime }} - {{ talk.endTime }}</small>
+                                    </div>
+                                    <div class="craft-search-result-body">
+                                        <div class="craft-search-result-head">
+                                            <div class="min-w-0">
+                                                <h3 class="craft-search-result-title mb-1" data-search-mark>{{ talk.title }}</h3>
+                                                {% if talk.speakerNames %}
+                                                    <p class="craft-search-result-speakers mb-0" data-search-mark>{{ talk.speakerNames }}</p>
+                                                {% endif %}
+                                            </div>
+                                            <a class="craft-agenda-jump" href="#talk-{{ talk.id }}" data-talk-jump="talk-{{ talk.id }}">details ↓</a>
+                                        </div>
+                                        <div class="portfolio-badges">
+                                            <span class="badge craft-stage-badge" style="--craft-stage-color: {{ talk.stageColor }}; --craft-stage-text: {{ talk.stageTextColor }};">{{ talk.stage }}</span>
+                                            {{ component("badge", { text: talk.level, css: "portfolio-muted-badge" }) }}
+                                            {% if talk.is_keynote %}
+                                                {{ component("badge", { text: "Keynote", css: "text-bg-warning" }) }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </article>
+                            {% endfor %}
+                        </div>
+                    </section>
                 </div>
                 <div class="craft-map-frame" data-craft-map>
                     {{ 'map.svg' | svg([1068, 924], 'craft-map-svg', { ariaHidden: false, focusable: false }) | safe }}
+                    <div class="craft-map-bubbles" data-craft-map-bubbles aria-hidden="true"></div>
                 </div>
             </section>
 
@@ -106,6 +153,7 @@ menu:
                                         data-status="{{ talk.level | default('general') | lower }}"
                                         data-start="{{ talk.day | default('') }} {{ talk.startTime | default('') }}"
                                         data-pinned="{% if talk.is_keynote %}1{% else %}0{% endif %}"
+                                        data-map-count-source
                                         data-stage-svg-ids="{{ talk.stageSvgIds | join(',') }}">
                                         <div class="portfolio-visual craft-speakers-visual">
                                             {% if talk.speakers | length %}

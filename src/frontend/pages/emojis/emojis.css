@@ -2,6 +2,11 @@
     transition: box-shadow 160ms ease, border-color 160ms ease, transform 160ms ease, background-color 160ms ease;
 }
 
+[data-copy-emoji] {
+    color: #212529;
+    background: transparent;
+}
+
 [data-emoji-item]:hover [data-emoji-card],
 [data-emoji-item]:focus-within [data-emoji-card] {
     background-color: #f8f9ff;

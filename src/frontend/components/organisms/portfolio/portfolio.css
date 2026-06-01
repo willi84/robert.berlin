@@ -353,6 +353,7 @@
 }
 
 .craft-map-frame {
+    position: relative;
     padding: 1rem;
     border: 1px solid var(--pf-line);
     border-radius: 1rem;
@@ -387,6 +388,105 @@
 .craft-map-stage.is-active {
     stroke: #ffffff;
     stroke-width: 4px;
+}
+
+.craft-map-bubbles {
+    position: absolute;
+    inset: 1rem;
+    pointer-events: none;
+}
+
+.craft-map-bubble {
+    position: absolute;
+    min-width: 1.35rem;
+    height: 1.35rem;
+    padding: 0 .35rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, .3);
+    background: #dc3545;
+    color: #fff;
+    font-size: .72rem;
+    font-weight: 800;
+    line-height: 1;
+    box-shadow: 0 .35rem 1rem rgba(0, 0, 0, .35);
+    transform: translate(-50%, -50%);
+}
+
+.craft-search-results {
+    display: grid;
+    gap: .85rem;
+    min-height: 0;
+    margin-top: .5rem;
+    padding: .9rem;
+    border: 1px solid var(--pf-line);
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--pf-card) 92%, transparent);
+}
+
+.craft-search-results-head {
+    display: flex;
+    justify-content: space-between;
+    gap: .75rem;
+    align-items: end;
+}
+
+.craft-search-results-list {
+    display: grid;
+    gap: .65rem;
+    max-height: 32rem;
+    overflow-y: auto;
+    padding-right: .25rem;
+}
+
+.craft-search-result-item {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    gap: .8rem;
+    align-items: start;
+    padding: .75rem;
+    border: 1px solid var(--pf-line);
+    border-radius: .9rem;
+    background: color-mix(in srgb, var(--pf-panel) 88%, transparent);
+}
+
+.craft-search-result-time {
+    display: grid;
+    gap: .15rem;
+}
+
+.craft-search-result-time span {
+    color: var(--pf-text);
+    font-size: .78rem;
+    font-weight: 700;
+}
+
+.craft-search-result-time small,
+.craft-search-result-speakers {
+    color: var(--pf-muted);
+    font-size: .75rem;
+}
+
+.craft-search-result-body {
+    display: grid;
+    gap: .45rem;
+    min-width: 0;
+}
+
+.craft-search-result-head {
+    display: flex;
+    justify-content: space-between;
+    gap: .75rem;
+    align-items: start;
+}
+
+.craft-search-result-title {
+    color: var(--pf-text);
+    font-size: .9rem;
+    font-weight: 800;
+    line-height: 1.3;
 }
 
 .craft-cards-view {
@@ -497,6 +597,14 @@
 }
 
 @media (max-width: 767.98px) {
+    .craft-search-result-item {
+        grid-template-columns: 1fr;
+    }
+
+    .craft-search-result-head {
+        flex-direction: column;
+    }
+
     .craft-schedule-slot {
         grid-template-columns: 1fr;
     }

@@ -47,12 +47,19 @@ const getStageIds = (value = ''): string[] => value
     .map((item) => item.trim())
     .filter(Boolean);
 
+const getTimeOrderValue = (day = '', startTime = ''): string => `${day} ${startTime}`;
+
 const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElement[], viewButtons: HTMLButtonElement[], empty: HTMLElement | null) => {
     const searchInput = getElement<HTMLInputElement>(root, '[data-search-input]');
     const scheduleItems = getElements(root, '[data-schedule-item]');
     const scheduleDays = getElements(root, '[data-schedule-day]');
     const talkItems = getElements(root, '[data-talk-item]');
+    const mapCountSourceItems = getElements(root, '[data-map-count-source]');
     const mapRoot = getElement(root, '[data-craft-map]');
+    const mapBubbleLayer = getElement(root, '[data-craft-map-bubbles]');
+    const searchResultsPanel = getElement(root, '[data-craft-search-results]');
+    const searchResultItems = getElements(root, '[data-craft-result-item]');
+    const searchResultsCount = getElement(root, '[data-craft-results-count]');
     const jumpLinks = getElements<HTMLAnchorElement>(root, '[data-talk-jump]');
 
     if (scheduleItems.length === 0 && !mapRoot) {
@@ -62,13 +69,16 @@ const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElemen
     let currentCategory = 'all';
     let currentStageIds: string[] = [];
     let hoveredStageIds: string[] = [];
+    let isRefreshScheduled = false;
 
     const stageIds = new Set<string>();
     talkItems.forEach((item) => getStageIds(item.dataset.stageSvgIds).forEach((stageId) => stageIds.add(stageId)));
     filterButtons.forEach((button) => getStageIds(button.dataset.stageSvgIds).forEach((stageId) => stageIds.add(stageId)));
+    searchResultItems.forEach((item) => getStageIds(item.dataset.stageSvgIds).forEach((stageId) => stageIds.add(stageId)));
 
     const stageElementMap = new Map<string, HTMLElement[]>();
     const stageButtonMap = new Map<string, HTMLButtonElement>();
+    const bubbleMap = new Map<string, HTMLElement>();
 
     if (mapRoot) {
         stageIds.forEach((stageId) => {
@@ -83,6 +93,16 @@ const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElemen
             });
 
             stageElementMap.set(stageId, matchedElements);
+        });
+    }
+
+    if (mapBubbleLayer) {
+        stageElementMap.forEach((_elements, stageId) => {
+            const bubble = document.createElement('span');
+            bubble.className = 'craft-map-bubble d-none';
+            bubble.dataset.stageBubble = stageId;
+            mapBubbleLayer.appendChild(bubble);
+            bubbleMap.set(stageId, bubble);
         });
     }
 
@@ -136,12 +156,112 @@ const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElemen
         }
     };
 
+    const updateMapBubbles = () => {
+        if (!searchInput || !mapRoot || !mapBubbleLayer) {
+            return;
+        }
+
+        const query = getSearchQuery(searchInput.value || '');
+        const showBubbles = query.length > 0;
+        const counts = new Map<string, number>();
+        const bubbleLayerRect = mapBubbleLayer.getBoundingClientRect();
+
+        bubbleMap.forEach((bubble) => {
+            bubble.classList.add('d-none');
+        });
+
+        if (!showBubbles) {
+            return;
+        }
+
+        mapCountSourceItems.forEach((item) => {
+            const itemSection = item.closest<HTMLElement>('[data-category-section]');
+            const isVisible = !item.classList.contains('d-none') && !itemSection?.classList.contains('d-none');
+
+            if (!isVisible) {
+                return;
+            }
+
+            getStageIds(item.dataset.stageSvgIds).forEach((stageId) => {
+                counts.set(stageId, (counts.get(stageId) || 0) + 1);
+            });
+        });
+
+        counts.forEach((count, stageId) => {
+            const elements = stageElementMap.get(stageId);
+            const bubble = bubbleMap.get(stageId);
+            const target = elements?.[0];
+
+            if (!bubble || !target) {
+                return;
+            }
+
+            const targetRect = target.getBoundingClientRect();
+
+            bubble.textContent = `${count}`;
+            bubble.style.left = `${targetRect.right - bubbleLayerRect.left}px`;
+            bubble.style.top = `${targetRect.top - bubbleLayerRect.top}px`;
+            bubble.classList.remove('d-none');
+        });
+    };
+
+    const updateSearchResults = () => {
+        if (!searchInput || !searchResultsPanel) {
+            return;
+        }
+
+        const query = getSearchQuery(searchInput.value || '');
+        const hasQuery = query.length > 0;
+        let visibleCount = 0;
+
+        searchResultItems.forEach((item) => {
+            const matchesCategory = currentCategory === 'all' || item.dataset.category === currentCategory;
+            const matchesSearch = !query || (item.dataset.search || '').includes(query);
+            const isVisible = hasQuery && matchesCategory && matchesSearch;
+
+            item.classList.toggle('d-none', !isVisible);
+            visibleCount += isVisible ? 1 : 0;
+        });
+
+        searchResultItems
+            .slice()
+            .sort((left, right) => getTimeOrderValue(left.dataset.day, left.dataset.startTime)
+                .localeCompare(getTimeOrderValue(right.dataset.day, right.dataset.startTime)))
+            .forEach((item) => {
+                item.parentElement?.appendChild(item);
+            });
+
+        searchResultsPanel.classList.toggle('d-none', !hasQuery || visibleCount === 0);
+
+        if (searchResultsCount) {
+            searchResultsCount.textContent = `${visibleCount}`;
+        }
+    };
+
+    const refreshCraftUi = () => {
+        updateSearchResults();
+        updateMapBubbles();
+    };
+
+    const scheduleCraftUiRefresh = () => {
+        if (isRefreshScheduled) {
+            return;
+        }
+
+        isRefreshScheduled = true;
+        window.requestAnimationFrame(() => {
+            isRefreshScheduled = false;
+            refreshCraftUi();
+        });
+    };
+
     const syncCurrentStage = () => {
         const activeButton = filterButtons.find((button) => button.classList.contains('active'));
         currentCategory = activeButton?.dataset.filterButton || 'all';
         currentStageIds = getStageIds(activeButton?.dataset.stageSvgIds || '');
         applyScheduleFilters();
         applyMapHighlight();
+        scheduleCraftUiRefresh();
     };
 
     const bindHoverHighlight = (element: HTMLElement) => {
@@ -167,7 +287,7 @@ const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElemen
     talkItems.forEach(bindHoverHighlight);
     filterButtons.forEach((button) => {
         button.addEventListener('click', () => {
-            syncCurrentStage();
+            window.requestAnimationFrame(syncCurrentStage);
         });
         bindHoverHighlight(button);
     });
@@ -223,7 +343,11 @@ const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElemen
         });
     });
 
-    searchInput?.addEventListener('input', applyScheduleFilters);
+    searchInput?.addEventListener('input', () => {
+        applyScheduleFilters();
+        scheduleCraftUiRefresh();
+    });
+    window.addEventListener('resize', scheduleCraftUiRefresh);
     syncCurrentStage();
 };
 
