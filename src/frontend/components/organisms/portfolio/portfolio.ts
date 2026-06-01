@@ -47,24 +47,19 @@ const getStageIds = (value = ''): string[] => value
     .map((item) => item.trim())
     .filter(Boolean);
 
-const matchesStageIds = (value: string, stageIds: string[]): boolean => {
-    const currentIds = getStageIds(value);
-    return stageIds.some((stageId) => currentIds.includes(stageId));
-};
-
 const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElement[], viewButtons: HTMLButtonElement[], empty: HTMLElement | null) => {
     const searchInput = getElement<HTMLInputElement>(root, '[data-search-input]');
     const scheduleItems = getElements(root, '[data-schedule-item]');
     const scheduleDays = getElements(root, '[data-schedule-day]');
     const talkItems = getElements(root, '[data-talk-item]');
     const mapRoot = getElement(root, '[data-craft-map]');
+    const jumpLinks = getElements<HTMLAnchorElement>(root, '[data-talk-jump]');
 
     if (scheduleItems.length === 0 && !mapRoot) {
         return;
     }
 
     let currentCategory = 'all';
-    let currentView = root.dataset.view || 'cards';
     let currentStageIds: string[] = [];
     let hoveredStageIds: string[] = [];
 
@@ -211,16 +206,24 @@ const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElemen
         });
     }
 
-    searchInput?.addEventListener('input', applyScheduleFilters);
+    jumpLinks.forEach((link) => {
+        link.addEventListener('click', (event) => {
+            event.preventDefault();
+            const targetId = link.dataset.talkJump;
+            if (!targetId) return;
 
-    viewButtons.forEach((button) => {
-        button.addEventListener('click', () => {
-            currentView = button.dataset.viewButton || 'cards';
-            root.dataset.view = currentView;
-            applyScheduleFilters();
+            const listButton = viewButtons.find((button) => button.dataset.viewButton === 'list');
+            listButton?.click();
+
+            window.requestAnimationFrame(() => {
+                const target = document.getElementById(targetId);
+                target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                window.location.hash = targetId;
+            });
         });
     });
 
+    searchInput?.addEventListener('input', applyScheduleFilters);
     syncCurrentStage();
 };
 
