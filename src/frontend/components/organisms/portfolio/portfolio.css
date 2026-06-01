@@ -549,3 +549,11 @@
         position: static;
     }
 }
+
+
+/** bugfixes **/
+.portfolio-link:hover .portfolio-link:hover,
+.portfolio-link .portfolio-link{
+    border: none;
+    background: none;
+}
