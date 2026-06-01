@@ -113,12 +113,24 @@ export const getRawData = async (url: string): Promise<any> => {
     return response;
 }
 
-export const getSheetTab = async (id: string, tab: string, filterColumns: string[]): Promise<ProjectItem[]> => {
+export const getSheetTab = async (id: string, tab: string, filterColumns: string[], allowedCols: string[]): Promise<ProjectItem[]> => {
     const SHEET_URL = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?sheet=${encodeURIComponent(tab)}&tqx=out:json`;
+    // console.log(id);
+    // console.log(SHEET_URL);
     const rawText: string = await getSheetText(SHEET_URL);
     const projects: ProjectItem[] = await getProjects(rawText)
         // filter empty items (where all values are empty strings)
         .filter((item) => Object.values(item).some((value) => value.trim() !== ""))
+        // console.log(projects);
+    const keys = Object.keys(projects[0] || {});
+    // TODO: refactor, put in extra function check for column issues
+    if(allowedCols.length > 0){
+        for(const key of keys){
+                if(allowedCols.indexOf(key) === -1){
+                    LOG.WARN(`column  "${key}" in tab "${tab}" is not in allowed columns list and will be ignored`);
+                }
+            }
+    }
     LOG.OK(`Fetched ${projects.length} items from tab "${tab}"`);
     const newProjects = filterItems(projects, filterColumns);
     if(JSON.stringify(projects) !== JSON.stringify(newProjects)){

@@ -27,8 +27,9 @@ const main = async () => {
         LOG.OK(`[${status}] connection check`);
 
         // get config
-        const config = await getSheetTab(TARGET_ID, CONFIG_TAB, []);
-        const colsConfig: SYNONYM_ITEM[] = await getSheetTab(TARGET_ID, COLUMNS_TAB, []) as SYNONYM_ITEM[];
+        const colsConfig: SYNONYM_ITEM[] = await getSheetTab(TARGET_ID, COLUMNS_TAB, [], []) as SYNONYM_ITEM[];
+        const allowedCols = colsConfig.map(item => item['value']);
+        const config = await getSheetTab(TARGET_ID, CONFIG_TAB, [], allowedCols);
         // TABS
         const ACTIVE_TABS = config
         .filter((row) => row['status'] === 'active')
@@ -44,7 +45,7 @@ const main = async () => {
         for(const TAB of ACTIVE_TABS) {
             const tab = TAB['tab'];
             const tabItem = config.filter((row) => row['status'] === 'active' && row['tab'] === tab)[0];
-            const raw = await getSheetTab(TARGET_ID, tab, tabItem['filtered'].split(',').map((item: string) => item.trim()));
+            const raw = await getSheetTab(TARGET_ID, tab, tabItem['filtered'].split(',').map((item: string) => item.trim()), allowedCols);
             const isValid = checkKeys(Object.keys(raw[0] || {}), TAB['value'], tab);
             if(!isValid) {
                 return;
@@ -64,6 +65,7 @@ const main = async () => {
                     result[tab] = raw;
             }
         }
+
         for(const tab of TABS){
             const tabResult = result[tab];
             if(tabResult){
@@ -71,12 +73,22 @@ const main = async () => {
                 result[tab] = checkColumns(temp, colsConfig); 
             }
         }
+
         result['configuration'] = REPLACEABLE_CONFIG;
         FS.writeFile(OUTPUT_PATH, result);
         FS.writeFile(FINAL_PATH, getFinalData(result));
 
+
         const TABS_EMOJIS = 'EMOJIS';
-        let dataEmojis: any = await getSheetTab(TARGET_ID, TABS_EMOJIS, []);
+        let dataEmojis: any = await getSheetTab(TARGET_ID, TABS_EMOJIS, [], allowedCols);
+        const keys = Object.keys(dataEmojis[0] || {});
+        let isValid = true;
+        for(const key of keys){
+            if(allowedCols.indexOf(key) === -1){
+                LOG.WARN(`column  "${key}" in tab "${TABS_EMOJIS}" is not in allowed columns list and will be ignored`);
+            }
+        }
+        // console.log('dataEmojis', dataEmojis);
         FS.writeFile(EMOJI_PATH, dataEmojis);
 
         let craftData: any = await getRawData(CRAFT_URL);
