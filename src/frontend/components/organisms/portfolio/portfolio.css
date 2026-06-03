@@ -1198,16 +1198,40 @@
     stroke-width: 3;
 }
 
+.craft-plan-toggle {
+    border-color: color-mix(in srgb, var(--pf-line) 88%, white 12%);
+    background: color-mix(in srgb, var(--pf-panel) 78%, transparent);
+    color: var(--pf-muted);
+    transition: transform .18s ease, border-color .18s ease, background-color .18s ease, color .18s ease, box-shadow .18s ease;
+}
+
+.craft-plan-toggle:hover,
+.craft-plan-toggle:focus-visible {
+    color: var(--pf-text);
+    border-color: color-mix(in srgb, #f59f00 58%, var(--pf-line));
+    background: color-mix(in srgb, rgba(245, 159, 0, .16) 100%, transparent);
+    box-shadow: 0 .45rem 1.2rem rgba(245, 159, 0, .16);
+}
+
 .craft-plan-toggle.is-active,
 .portfolio-item.is-saved,
 .craft-schedule-talk.is-saved,
 .craft-agenda-item.is-saved {
-    border-color: color-mix(in srgb, var(--pf-accent) 62%, var(--pf-line));
+    border-color: color-mix(in srgb, #22c55e 62%, var(--pf-line));
+}
+
+.portfolio-item.is-saved,
+.craft-schedule-talk.is-saved,
+.craft-agenda-item.is-saved {
+    background: linear-gradient(135deg, rgba(34, 197, 94, .12), rgba(59, 130, 246, .06) 42%, transparent 100%), color-mix(in srgb, var(--pf-panel) 90%, transparent);
+    box-shadow: 0 .85rem 2rem rgba(34, 197, 94, .12);
 }
 
 .craft-plan-toggle.is-active {
-    background: color-mix(in srgb, var(--pf-accent) 22%, transparent);
-    color: var(--pf-text);
+    border-color: color-mix(in srgb, #22c55e 72%, var(--pf-line));
+    background: linear-gradient(135deg, rgba(34, 197, 94, .22), rgba(16, 185, 129, .12));
+    color: #eafff1;
+    box-shadow: 0 .55rem 1.35rem rgba(34, 197, 94, .2);
 }
 
 @media (max-width: 767.98px) {

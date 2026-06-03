@@ -499,7 +499,7 @@ const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElemen
     const clearPlanButton = getElement<HTMLButtonElement>(root, '[data-plan-clear]');
     const gpsButton = getElement<HTMLButtonElement>(root, '[data-gps-button]');
     const gpsStatus = getElement(root, '[data-gps-status]');
-    const searchResultsPanel = getElement(root, '[data-craft-search-results]');
+    const searchResultsPanel = getElement(root, '[data-craft-search-results]'); // tODO
     const searchResultItems = getElements(root, '[data-craft-result-item]');
     const searchResultsCount = getElement(root, '[data-craft-results-count]');
     const jumpLinks = getElements<HTMLAnchorElement>(root, '[data-talk-jump]');
@@ -531,6 +531,8 @@ const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElemen
     const routeElementMap = new Map<string, HTMLElement[]>();
     const routeSvgMap = new Map<string, SVGElement[]>();
     let hoveredRouteId = '';
+    const getCurrentView = (): string => root.dataset.view || 'cards';
+    const usesInlineSearchResults = (): boolean => ['schedule', 'agenda'].includes(getCurrentView());
 
     const applyRouteHighlight = () => {
         routeElementMap.forEach((elements, routeId) => {
@@ -1192,7 +1194,7 @@ const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElemen
             const isSaved = savedTalkIds.includes(talkId);
             buttons.forEach((button) => {
                 button.classList.toggle('is-active', isSaved);
-                button.textContent = isSaved ? 'Saved' : 'Save';
+                button.textContent = isSaved ? '✅ Saved' : '💾 Save';
                 button.setAttribute('aria-pressed', isSaved ? 'true' : 'false');
             });
         });
@@ -1328,7 +1330,7 @@ const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElemen
                 item.parentElement?.appendChild(item);
             });
 
-        searchResultsPanel.classList.toggle('d-none', !hasQuery || visibleCount === 0);
+        searchResultsPanel.classList.toggle('d-none', usesInlineSearchResults() || !hasQuery || visibleCount === 0);
 
         if (searchResultsCount) {
             searchResultsCount.textContent = String(visibleCount);
@@ -1602,6 +1604,8 @@ const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElemen
         scheduleCraftUiRefresh();
     });
 
+    root.addEventListener('portfolio:viewchange', scheduleCraftUiRefresh);
+
     window.addEventListener('resize', scheduleCraftUiRefresh);
 
     if (window.ResizeObserver && mapRoot) {
@@ -1629,6 +1633,7 @@ export const createPortfolio = (base: any = document) => {
     const applyView = () => {
         root.dataset.view = currentView;
         viewButtons.forEach((button) => button.classList.toggle('active', button.dataset.viewButton === currentView));
+        root.dispatchEvent(new CustomEvent('portfolio:viewchange'));
     };
 
     viewButtons.forEach((button) => {
