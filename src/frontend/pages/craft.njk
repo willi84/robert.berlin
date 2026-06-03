@@ -38,10 +38,24 @@ menu:
             <section class="craft-map-panel mb-4" aria-labelledby="craft-map-title">
                 <div class="craft-map-panel-copy">
                     <p class="portfolio-kicker mb-1">venue</p>
-                    <div class="d-flex flex-column gap-2">
-                        <h2 id="craft-map-title" class="h4 mb-0">Stage map</h2>
-                        <p class="portfolio-description mb-0">Hover a talk or choose a stage to highlight its position on the venue map.</p>
-                    </div>
+                    <h2 id="craft-map-title" class="h4 mb-0">Stage map</h2>
+                    <section class="craft-plan-panel" data-craft-plan aria-live="polite">
+                        <div class="craft-plan-head">
+                            <div>
+                                <p class="portfolio-kicker mb-1">personal plan</p>
+                                <h3 class="h6 mb-0 craft-plan-title">Saved talks <span class="portfolio-count"><span data-plan-count>0</span></span><button class="craft-plan-clear-icon d-none" type="button" data-plan-clear aria-label="Clear saved talks" title="Clear saved talks">🗑</button></h3>
+                            </div>
+                        </div>
+                        <div class="craft-plan-control craft-plan-control-panel">
+                            <div class="craft-plan-control-copy">
+                                <strong data-route-range-label>Day 1 · 🌅 Morning</strong>
+                            </div>
+                            <input class="craft-plan-range" type="range" min="0" max="0" value="0" step="1" data-route-range aria-label="Slide through saved conference time slots">
+                            <div class="craft-plan-scale" data-route-scale aria-hidden="true"></div>
+                            <div class="craft-plan-control-meta-row"><span class="craft-plan-control-meta" data-route-range-meta>Pick a time slice.</span><label class="craft-plan-checkbox"><input type="checkbox" data-route-history-toggle checked><span>Fade past routes</span></label><span class="craft-plan-gps-inline"><span class="craft-plan-status" data-gps-status>GPS off</span><button class="btn btn-sm portfolio-link craft-gps-toggle" type="button" data-gps-button aria-label="Toggle GPS" title="Toggle GPS">📍</button></span></div>
+                        </div>
+                        <div class="craft-plan-route-list d-none" data-route-list></div>
+                    </section>
                     <section class="craft-search-results d-none" data-craft-search-results aria-live="polite">
                         <div class="craft-search-results-head">
                             <div>
@@ -58,8 +72,12 @@ menu:
                                     data-craft-result-item
                                     data-search="{{ talk.searchValue }}"
                                     data-category="{{ talk.stage }}"
+                                    data-talk-id="{{ talk.id }}"
+                                    data-talk-title="{{ talk.title | escape }}"
                                     data-day="{{ talk.day }}"
                                     data-start-time="{{ talk.startTime }}"
+                                    data-end-time="{{ talk.endTime }}"
+                                    data-stage-label="{{ talk.stage }}"
                                     data-stage-svg-ids="{{ talk.stageSvgIds | join(',') }}">
                                     <div class="craft-search-result-time">
                                         <span>{{ talk.day }}</span>
@@ -73,7 +91,10 @@ menu:
                                                     <p class="craft-search-result-speakers mb-0" data-search-mark>{{ talk.speakerNames }}</p>
                                                 {% endif %}
                                             </div>
-                                            <a class="craft-agenda-jump" href="#talk-{{ talk.id }}" data-talk-jump="talk-{{ talk.id }}">details ↓</a>
+                                            <div class="craft-talk-actions">
+                                                <button class="btn btn-sm portfolio-link craft-plan-toggle" type="button" data-plan-toggle data-talk-id="{{ talk.id }}">Save</button>
+                                                <a class="craft-agenda-jump" href="#talk-{{ talk.id }}" data-talk-jump="talk-{{ talk.id }}">details ↓</a>
+                                            </div>
                                         </div>
                                         <div class="portfolio-badges">
                                             <span class="badge craft-stage-badge" style="--craft-stage-color: {{ talk.stageColor }}; --craft-stage-text: {{ talk.stageTextColor }};">{{ talk.stage }}</span>
@@ -90,7 +111,23 @@ menu:
                 </div>
                 <div class="craft-map-frame" data-craft-map>
                     {{ 'map.svg' | svg([1068, 924], 'craft-map-svg', { ariaHidden: false, focusable: false }) | safe }}
+                    <div class="craft-map-character" data-craft-map-character aria-hidden="true">
+                        <img src="/assets/LINK.svg" alt="" width="45" height="48">
+                    </div>
+                    <svg class="craft-map-overlay" data-craft-map-overlay viewBox="0 0 1068 924" aria-hidden="true">
+                        <g data-craft-route-group></g>
+                        <g data-craft-position-group></g>
+                    </svg>
+                    <div class="craft-map-route-labels" data-craft-map-route-labels aria-hidden="true"></div>
                     <div class="craft-map-bubbles" data-craft-map-bubbles aria-hidden="true"></div>
+                    <div class="craft-map-success d-none" data-craft-map-success aria-hidden="true">✅</div>
+                    <div class="craft-map-dpad" data-craft-map-dpad aria-label="Move LINK on the map">
+                        <button class="craft-map-dpad-button is-up" type="button" data-map-move="up" aria-label="Move up">▲</button>
+                        <button class="craft-map-dpad-button is-left" type="button" data-map-move="left" aria-label="Move left">◀</button>
+                        <button class="craft-map-dpad-center" type="button" data-map-center aria-label="Center LINK">●</button>
+                        <button class="craft-map-dpad-button is-right" type="button" data-map-move="right" aria-label="Move right">▶</button>
+                        <button class="craft-map-dpad-button is-down" type="button" data-map-move="down" aria-label="Move down">▼</button>
+                    </div>
                 </div>
             </section>
 
@@ -153,6 +190,12 @@ menu:
                                         data-status="{{ talk.level | default('general') | lower }}"
                                         data-start="{{ talk.day | default('') }} {{ talk.startTime | default('') }}"
                                         data-pinned="{% if talk.is_keynote %}1{% else %}0{% endif %}"
+                                        data-talk-id="{{ talk.id }}"
+                                        data-talk-title="{{ talk.title | escape }}"
+                                        data-day="{{ talk.day }}"
+                                        data-start-time="{{ talk.startTime }}"
+                                        data-end-time="{{ talk.endTime }}"
+                                        data-stage-label="{{ talk.stage }}"
                                         data-map-count-source
                                         data-stage-svg-ids="{{ talk.stageSvgIds | join(',') }}">
                                         <div class="portfolio-visual craft-speakers-visual">
@@ -226,6 +269,7 @@ menu:
                                             </dl>
 
                                             <div class="portfolio-links">
+                                                <button class="btn btn-sm portfolio-link craft-plan-toggle" type="button" data-plan-toggle data-talk-id="{{ talk.id }}">Save</button>
                                                 {% if talk.video_url %}
                                                     {{ component("link", { url: talk.video_url, text: "video", css: "btn btn-sm portfolio-link", target: "_blank" }) }}
                                                 {% endif %}
@@ -265,6 +309,12 @@ menu:
                                                 data-talk-item
                                                 data-category="{{ talk.stage }}"
                                                 data-search="{{ talk.searchValue }}"
+                                                data-talk-id="{{ talk.id }}"
+                                                data-talk-title="{{ talk.title | escape }}"
+                                                data-day="{{ talk.day }}"
+                                                data-start-time="{{ talk.startTime }}"
+                                                data-end-time="{{ talk.endTime }}"
+                                                data-stage-label="{{ talk.stage }}"
                                                 data-stage-svg-ids="{{ talk.stageSvgIds | join(',') }}">
                                                 <div class="craft-schedule-talk-head">
                                                     <div class="min-w-0">
@@ -277,6 +327,7 @@ menu:
                                                         <span class="portfolio-pin" title="Keynote">⭐</span>
                                                     {% endif %}
                                                 </div>
+                                                <button class="btn btn-sm portfolio-link craft-plan-toggle align-self-start" type="button" data-plan-toggle data-talk-id="{{ talk.id }}">Save</button>
                                                 <div class="portfolio-badges">
                                                     <span class="badge craft-stage-badge" style="--craft-stage-color: {{ talk.stageColor }}; --craft-stage-text: {{ talk.stageTextColor }};">{{ talk.stage }}</span>
                                                     {{ component("badge", { text: talk.level, css: "portfolio-muted-badge" }) }}
@@ -311,6 +362,12 @@ menu:
                                         data-talk-item
                                         data-category="{{ talk.stage }}"
                                         data-search="{{ talk.searchValue }}"
+                                        data-talk-id="{{ talk.id }}"
+                                        data-talk-title="{{ talk.title | escape }}"
+                                        data-day="{{ talk.day }}"
+                                        data-start-time="{{ talk.startTime }}"
+                                        data-end-time="{{ talk.endTime }}"
+                                        data-stage-label="{{ talk.stage }}"
                                         data-stage-svg-ids="{{ talk.stageSvgIds | join(',') }}">
                                         <div class="craft-agenda-time">
                                             <span>{{ talk.startTime }}</span>
@@ -324,7 +381,10 @@ menu:
                                                         <p class="craft-agenda-speakers mb-0" data-search-mark>{{ talk.speakerNames }}</p>
                                                     {% endif %}
                                                 </div>
-                                                <a class="craft-agenda-jump" href="#talk-{{ talk.id }}" data-talk-jump="talk-{{ talk.id }}">details ↓</a>
+                                                <div class="craft-talk-actions">
+                                                    <button class="btn btn-sm portfolio-link craft-plan-toggle" type="button" data-plan-toggle data-talk-id="{{ talk.id }}">Save</button>
+                                                    <a class="craft-agenda-jump" href="#talk-{{ talk.id }}" data-talk-jump="talk-{{ talk.id }}">details ↓</a>
+                                                </div>
                                             </div>
                                             <div class="portfolio-badges">
                                                 <span class="badge craft-stage-badge" style="--craft-stage-color: {{ talk.stageColor }}; --craft-stage-text: {{ talk.stageTextColor }};">{{ talk.stage }}</span>
