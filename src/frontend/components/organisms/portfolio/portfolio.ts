@@ -497,9 +497,9 @@ const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElemen
     const routeHistoryToggle = getElement<HTMLInputElement>(root, '[data-route-history-toggle]');
     const routeList = getElement(root, '[data-route-list]');
     const clearPlanButton = getElement<HTMLButtonElement>(root, '[data-plan-clear]');
-    const gpsButton = getElement<HTMLButtonElement>(root, '[data-gps-button]');
+    const gpsToggle = getElement<HTMLInputElement>(root, '[data-gps-toggle]');
     const gpsStatus = getElement(root, '[data-gps-status]');
-    const searchResultsPanel = getElement(root, '[data-craft-search-results]'); // tODO
+    const searchResultsPanel = getElement(root, '[data-craft-search-results]'); // TODO
     const searchResultItems = getElements(root, '[data-craft-result-item]');
     const searchResultsCount = getElement(root, '[data-craft-results-count]');
     const jumpLinks = getElements<HTMLAnchorElement>(root, '[data-talk-jump]');
@@ -1405,9 +1405,8 @@ const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElemen
         renderGpsMarker();
         renderPlan();
 
-        if (gpsButton) {
-            gpsButton.textContent = '📍';
-            gpsButton.classList.remove('is-active');
+        if (gpsToggle) {
+            gpsToggle.checked = false;
         }
 
         if (gpsStatus) {
@@ -1420,16 +1419,14 @@ const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElemen
             if (gpsStatus) {
                 gpsStatus.textContent = 'GPS unavailable';
             }
-            if (gpsButton) {
-                gpsButton.textContent = '📍';
-                gpsButton.classList.remove('is-active');
+            if (gpsToggle) {
+                gpsToggle.checked = false;
             }
             return;
         }
 
-        if (gpsButton) {
-            gpsButton.textContent = '📍';
-            gpsButton.classList.add('is-active');
+        if (gpsToggle) {
+            gpsToggle.checked = true;
         }
 
         if (gpsStatus) {
@@ -1457,9 +1454,6 @@ const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElemen
             stopGps();
             if (gpsStatus) {
                 gpsStatus.textContent = 'GPS denied';
-            }
-            if (gpsButton) {
-                gpsButton.classList.remove('is-active');
             }
         }, {
             enableHighAccuracy: true,
@@ -1529,14 +1523,16 @@ const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElemen
         renderPlan();
     });
 
-    gpsButton?.addEventListener('click', () => {
-        if (gpsWatchId === null) {
-            startGps();
-            return;
-        }
+    if (gpsToggle) {
+        gpsToggle.addEventListener('change', () => {
+            if (gpsToggle.checked) {
+                startGps();
+                return;
+            }
 
-        stopGps();
-    });
+            stopGps();
+        });
+    }
 
     routeRange?.addEventListener('input', () => {
         selectedPlanSlotIndex = Number(routeRange.value || '0');
