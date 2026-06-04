@@ -12,12 +12,6 @@
             "sizes": "any",
             "type": "image/svg+xml",
             "purpose": "any"
-        },
-        {
-            "src": "/assets/logo.jpg",
-            "sizes": "1200x800",
-            "type": "image/jpeg",
-            "purpose": "any"
         }
     ]
 }

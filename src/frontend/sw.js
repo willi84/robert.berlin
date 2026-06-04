@@ -6,7 +6,9 @@ self.addEventListener('install', (event) => {
         caches
             .open(CACHE_NAME)
             .then((cache) => cache.addAll(CORE_ASSETS))
-            .catch(() => undefined)
+            .catch((error) => {
+                console.warn('[sw] cache install failed', error);
+            })
     );
     self.skipWaiting();
 });
@@ -36,7 +38,15 @@ self.addEventListener('fetch', (event) => {
 
     if (request.mode === 'navigate') {
         event.respondWith(
-            fetch(request).catch(() => caches.match('/'))
+            fetch(request).catch(async () => {
+                const fallback = await caches.match('/');
+                return fallback || new Response('Offline', {
+                    status: 503,
+                    headers: {
+                        'Content-Type': 'text/plain; charset=utf-8',
+                    },
+                });
+            })
         );
         return;
     }
@@ -53,7 +63,12 @@ self.addEventListener('fetch', (event) => {
                 }
 
                 const responseClone = networkResponse.clone();
-                caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
+                caches
+                    .open(CACHE_NAME)
+                    .then((cache) => cache.put(request, responseClone))
+                    .catch((error) => {
+                        console.warn('[sw] cache update failed', error);
+                    });
                 return networkResponse;
             });
         })

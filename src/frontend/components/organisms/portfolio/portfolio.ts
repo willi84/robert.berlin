@@ -499,7 +499,7 @@ const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElemen
     const clearPlanButton = getElement<HTMLButtonElement>(root, '[data-plan-clear]');
     const gpsToggle = getElement<HTMLInputElement>(root, '[data-gps-toggle]');
     const gpsStatus = getElement(root, '[data-gps-status]');
-    const searchResultsPanel = getElement(root, '[data-craft-search-results]'); // tODO
+    const searchResultsPanel = getElement(root, '[data-craft-search-results]'); // TODO
     const searchResultItems = getElements(root, '[data-craft-result-item]');
     const searchResultsCount = getElement(root, '[data-craft-results-count]');
     const jumpLinks = getElements<HTMLAnchorElement>(root, '[data-talk-jump]');
@@ -1436,9 +1436,7 @@ const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElemen
         gpsWatchId = navigator.geolocation.watchPosition((position) => {
             const mappedPoint = mapGeoToVenue(position.coords.latitude, position.coords.longitude);
             gpsPoint = mappedPoint;
-            if (mappedPoint) {
-                manualPoint = null;
-            }
+            manualPoint = null;
             renderGpsMarker();
             renderPlan();
 
@@ -1525,14 +1523,16 @@ const applyCraftExperience = (root: HTMLElement, filterButtons: HTMLButtonElemen
         renderPlan();
     });
 
-    gpsToggle?.addEventListener('change', () => {
-        if (gpsToggle.checked) {
-            startGps();
-            return;
-        }
+    if (gpsToggle) {
+        gpsToggle.addEventListener('change', () => {
+            if (gpsToggle.checked) {
+                startGps();
+                return;
+            }
 
-        stopGps();
-    });
+            stopGps();
+        });
+    }
 
     routeRange?.addEventListener('input', () => {
         selectedPlanSlotIndex = Number(routeRange.value || '0');
