@@ -290,6 +290,7 @@ export const getHttpItem = (
 export const getResponse = (url: string, opts: HTTP_OPTS = {}): CurlItem => {
     const token = (opts as any).token || '';
     const isDev = (opts as any).isDev || false;
+    const showLog = (opts as any).showLog !== undefined ? (opts as any).showLog : true;
     const customUA = (opts as any).ua || '-A "nodejs" ';
     const start = new Date().getTime();
     const isGithubApi = url.indexOf('api.github.com') !== -1;
@@ -346,13 +347,15 @@ export const getResponse = (url: string, opts: HTTP_OPTS = {}): CurlItem => {
     const splitted = data.split(/\r?\n\r?\n/);
     const header = splitted[0];
     const httpItem = getHttpItemFromHeader(header);
-    if (httpItem['status'] === '0') {
-        // TBD
-    } else if (httpItem['status'] !== '200') {
-        LOG.WARN(
-            `HTTP Status for ${url}: ${httpItem['status']} - ${httpItem['statusMessage']}`
-        );
-        LOG.DEBUG(finalCommand);
+    if(showLog === true){
+        if (httpItem['status'] === '0') {
+            // TBD
+        } else if (httpItem['status'] !== '200') {
+            LOG.WARN(
+                `HTTP Status for ${url}: ${httpItem['status']} - ${httpItem['statusMessage']}`
+            );
+            LOG.DEBUG(finalCommand);
+        }
     }
     // all splitted except 0
     // TODO: check if hasHeader for opencode
@@ -454,3 +457,17 @@ export const getUrlParamNum = (
     const value = parseInt(valueStr, 10);
     return value;
 };
+export const getStatusBase = (status: number): HTTPStatusBase => {
+    return {
+        status: String(status),
+        statusMessage: '',
+        server: '',
+        date: '',
+        contentType: '',
+        "xRatelimitRemaining": "0",
+        "xRatelimitLimit": "0",
+        "xRatelimitReset": "0",
+        protocol: "https:",
+        protocolVersion: "2.0",
+    };
+}

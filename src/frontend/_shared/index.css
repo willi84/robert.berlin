@@ -2,6 +2,7 @@
 @import './css/deprecated.css';
 @import './../components/organisms/portfolio/portfolio.css';
 @import './../pages/emojis/emojis.css';
+@import './../pages/github-projects.css';
 /* @import './../../pages/portfolio/portfolio.css'; */
 /* @import './components/_fonts.css';
 @import './../../components/molecules/search/search.molecule.css';

@@ -1,0 +1,172 @@
+---
+layout: base.template.njk
+title: GitHub Projects
+navigation: true
+footer: true
+permalink: /github-projects/index.html
+menu:
+  label: GitHub Projects
+  emoji: 🧪
+  order: 30
+---
+
+{%- from "./../templates/_setup/macros/component.macro.njk" import component -%}
+
+{% set githubData = github | default({}) %}
+{% set repos = githubData.repos | default([]) %}
+
+<section class="github-projects-shell">
+    <div class="container py-4 py-lg-5">
+        {{
+            component("menu", {
+                page: page,
+                url: "/github-projects",
+                main: main,
+                title: "GitHub Project Linting",
+                subtitle: "Search my github repositories and lint vor various aspects.",
+                state: "🧪 experimental"
+            })
+        }}
+
+        <section search-context class="github-projects-panel">
+            <div class="github-projects-toolbar card shadow-sm border-0 mb-4">
+                <div class="card-body p-3 p-lg-4">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-12 col-lg-8">
+                            {{
+                                component("search", {
+                                    label: "GitHub Projekte durchsuchen",
+                                    class: "portfolio-input",
+                                    placeholder: "repo, license, status, errors ..."
+                                })
+                            }}
+                        </div>
+                        <div class="col-12 col-lg-4">
+                            <div class="github-projects-meta">
+                                <span class="github-projects-stat">📦 {{ githubData.count | default(repos | length) }} repos</span>
+                                <span class="github-projects-stat">🕒 {{ githubData.createdAt | default('n/a') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <section class="github-projects-section" data-category-section="repos">
+                <div class="github-projects-section-head d-flex justify-content-between align-items-center gap-3 mb-3">
+                    <div>
+                        <p class="portfolio-kicker mb-1">overview</p>
+                        <h2 class="h4 mb-0">Repository linting</h2>
+                    </div>
+                    <span class="portfolio-count"><span data-count>{{ repos | length }}</span> items</span>
+                </div>
+
+                <div class="github-projects-list">
+                    {% for entry in repos %}
+                        {% set repo = entry.repo | default({}) %}
+                        {% set validation = entry.validation %}
+                        {% if validation and validation.errors %}
+                            {% set errorCount = validation.errors | length %}
+                        {% else %}
+                            {% set errorCount = 0 %}
+                        {% endif %}
+
+                        {% if validation and validation.valid %}
+                            {% set lintScore = 100 %}
+                            {% set lintState = 'pass' %}
+                            {% set lintLabel = 'Healthy' %}
+                            {% set validationLabel = 'valid' %}
+                        {% elseif entry.hasProjectJson %}
+                            {% set lintScore = 64 %}
+                            {% set lintState = 'warn' %}
+                            {% set lintLabel = 'Needs fixes' %}
+                            {% set validationLabel = 'invalid' %}
+                        {% else %}
+                            {% set lintScore = 18 %}
+                            {% set lintState = 'fail' %}
+                            {% set lintLabel = 'Missing PROJECT.json' %}
+                            {% set validationLabel = 'invalid' %}
+                        {% endif %}
+
+                        {% if entry.hasProjectJson %}
+                            {% set projectJsonLabel = 'has project json' %}
+                        {% else %}
+                            {% set projectJsonLabel = 'missing project json' %}
+                        {% endif %}
+
+                        {% set createdLabel = repo.created | default('unknown') %}
+
+                        {% set changedLabel = repo.lastChange | default('unknown') %}
+
+                        {% set searchValue = repo.name | default('') %}
+                        {% set searchValue = searchValue ~ ' ' ~ (repo.url | default('')) %}
+                        {% set searchValue = searchValue ~ ' ' ~ (repo.license | default('')) %}
+                        {% set searchValue = searchValue ~ ' ' ~ (repo.author | default('')) %}
+                        {% set searchValue = searchValue ~ ' ' ~ lintLabel %}
+                        {% set searchValue = searchValue ~ ' ' ~ projectJsonLabel %}
+                        {% set searchValue = searchValue ~ ' ' ~ validationLabel %}
+                        {% set searchValue = searchValue ~ ' ' ~ errorCount %}
+
+                        <article
+                            class="github-project-card github-project-card--{{ lintState }}"
+                            data-search-item
+                            data-search="{{ searchValue | lower | escape }}"
+                            data-lint-state="{{ lintState }}">
+                            <div class="github-project-card__top">
+                                <div class="github-project-card__score" aria-hidden="true">
+                                    <span>{{ lintScore }}</span>
+                                </div>
+
+                                <div class="github-project-card__head">
+                                    <div class="github-project-card__title-row">
+                                        <h3 class="github-project-card__title mb-0" data-search-mark>{{ repo.name }}</h3>
+                                        <span class="github-project-pill github-project-pill--{{ lintState }}">{{ lintLabel }}</span>
+                                    </div>
+                                    <div class="github-project-card__badges">
+                                        <span class="github-project-pill github-project-pill--neutral">
+                                            {% if entry.hasProjectJson %}✅ PROJECT.json{% else %}❌ PROJECT.json{% endif %}
+                                        </span>
+                                        <span class="github-project-pill github-project-pill--neutral">🐞 {{ errorCount }} errors</span>
+                                        <span class="github-project-pill github-project-pill--neutral">⚖️ {{ repo.license | default('unknown') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="github-project-card__meta">
+                                <span data-search-mark>👤 {{ repo.author | default('unknown') }}</span>
+                                <span>🗓️ {{ createdLabel }}</span>
+                                <span>♻️ {{ changedLabel }}</span>
+                                <a href="{{ repo.url }}" target="_blank" rel="noopener noreferrer">↗ repository</a>
+                            </div>
+
+                            {% if validation and validation.valid %}
+                                <p class="github-project-card__message github-project-card__message--pass mb-0">
+                                    PROJECT.json exists and passes validation.
+                                </p>
+                            {% elseif entry.hasProjectJson %}
+                                <div class="github-project-card__issues">
+                                    <p class="github-project-card__message github-project-card__message--warn">
+                                        PROJECT.json exists, but validation returned {{ errorCount }} issue{% if errorCount != 1 %}s{% endif %}.
+                                    </p>
+                                    <ul class="github-project-card__error-list">
+                                        {% for error in validation.errors %}
+                                            <li>
+                                                <strong>{{ error.params.missingProperty | default(error.instancePath | default('field')) }}</strong>
+                                                <span>{{ error.message }}</span>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% else %}
+                                <p class="github-project-card__message github-project-card__message--fail mb-0">
+                                    No PROJECT.json found. Add one to enable schema validation and richer project metadata.
+                                </p>
+                            {% endif %}
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <p class="portfolio-empty d-none" data-search-empty>Keine passenden Projekte gefunden.</p>
+        </section>
+    </div>
+</section>

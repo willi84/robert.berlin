@@ -9,10 +9,11 @@
     "watch:api": "chokidar 'src/frontend' -c 'npm run build:api'",
     "watch:healthcheck": "chokidar 'src/frontend' -c 'npm run build:healthcheck_fast'",
     "dev:all": "npm-run-all --parallel start:api watch:api dev:eleventy dev:vite watch:healthcheck",
-    "dev": "npm run build:healthcheck_fast && npm run dev:all",
+    "dev": "npm run build:healthcheck_fast && npm run build:validator && npm run dev:all",
     "build": "NODE_ENV=production npm run build_all",
-    "build_all": "npm run build:api && npm run build:vite && npm run build:eleventy",
+    "build_all": "npm run build:api && npm run build:validator && npm run build:vite && npm run build:eleventy",
     "build:api": "npm run build_app -- api",
+    "build:validator": "npm run build_app -- validator",
     "build_app": "sh -c 'tsx src/backend/apps/$1/index.ts $2' --",
     "start_app": "sh -c 'tsx watch --clear-screen=false src/backend/apps/$1/index.ts' --",
     "watch:healthcheck_fast": "chokidar 'src/frontend' -c 'npm run build:healthcheck_fast'",
@@ -54,5 +55,9 @@
     "tsx": "^4.22.3",
     "typescript": "^4.9.5",
     "vite": "^2.9.18"
+  },
+  "dependencies": {
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1"
   }
 }

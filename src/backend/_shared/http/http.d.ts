@@ -32,6 +32,7 @@ export type HTTP_OPTS = {
     type?: 'json' | 'html' | 'text' | 'xml';
     token?: string; // auth token
     isDev?: boolean; // development mode
+    showLog?: boolean; // whether to show logs or not
 };
 
 export type HTTPStatusBase = {
