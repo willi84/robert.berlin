@@ -33,9 +33,14 @@
 {# TEMPLATE #}
 {% if image_url is defined %}
     <img data-component="image.atom"
+        data-neutral-image="true"
         class="{{class}} x"
         src="{{image_url}}"
         {{alt_text | safe}} {{width | safe}} {{height | safe}} {{lazy_loading | safe}}>
-{% elif params.placeholder is defined %}
-    <strong style="width: {{width}}px">{{ params.placeholder | first | upper }}</strong>
-{% endif %}        
+{% endif %}
+{% if params.placeholder is defined %}
+    <span
+        data-neutral-placeholder="true"
+        class="neutral-image-placeholder {{class}}{% if image_url is defined %} x{% endif %}"
+        aria-hidden="true">{{ params.placeholder | first | upper }}</span>
+{% endif %}

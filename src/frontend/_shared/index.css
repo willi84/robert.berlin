@@ -27,3 +27,32 @@ body{
     /* color: white; */
     font-family:monospace;
 }
+
+[data-neutral-placeholder="true"] {
+    align-items: center;
+    background: var(--pf-card-2, #dfe3e7);
+    border: 1px dashed var(--pf-line, #8a939b);
+    border-radius: .75rem;
+    color: var(--pf-muted, #4b5560);
+    display: inline-flex;
+    font-weight: 700;
+    justify-content: center;
+    min-height: 2rem;
+    min-width: 2rem;
+}
+
+img[data-neutral-image="true"] + [data-neutral-placeholder="true"] {
+    display: none;
+}
+
+body.is-neutral img[data-neutral-image="true"] {
+    display: none !important;
+}
+
+body.is-neutral img[data-neutral-image="true"] + [data-neutral-placeholder="true"] {
+    display: inline-flex;
+}
+
+body.is-neutral .portfolio-visual img[data-neutral-image="true"] + [data-neutral-placeholder="true"] {
+    display: flex;
+}
