@@ -11,12 +11,42 @@ const isNeutralMode = (): boolean => {
         return window.location.pathname === '/' && params.has('neutral');
 };
 
+const getNeutralHref = (isNeutral: boolean): string => {
+        const url = new URL(window.location.href);
+        const entries = Array.from(url.searchParams.entries()).filter(([key]) => key !== 'neutral');
+        const query = entries.map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+
+        if (isNeutral) {
+                query.unshift('neutral');
+        }
+
+        const search = query.length > 0 ? '?' + query.join('&') : '';
+        return url.pathname + search + url.hash;
+};
+
 const applyNeutralMode = () => {
         document.body.classList.toggle('is-neutral', isNeutralMode());
 };
 
+const setupNeutralToggle = () => {
+        const radios = document.querySelectorAll<HTMLInputElement>('input[name="neutral-mode"]');
+
+        if (radios.length === 0) {
+                return;
+        }
+
+        const neutral = isNeutralMode();
+        radios.forEach((radio) => {
+                radio.checked = radio.value === (neutral ? 'neutral' : 'default');
+                radio.addEventListener('change', () => {
+                        window.location.assign(getNeutralHref(radio.value === 'neutral'));
+                });
+        });
+};
+
 (() => {
         applyNeutralMode();
+        setupNeutralToggle();
         setupSearch();
         createPortfolio();
         createEmoji();

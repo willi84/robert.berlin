@@ -1263,3 +1263,59 @@
         text-align: left;
     }
 }
+
+    .portfolio-header-controls {
+        width: 100%;
+    }
+
+    .portfolio-neutral-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        margin: 0;
+        padding: .3rem;
+        border: 1px solid var(--pf-line);
+        border-radius: 999px;
+        background: var(--pf-card-2);
+    }
+    .portfolio-neutral-label {
+        margin: 0 .35rem 0 .2rem;
+        color: var(--pf-muted);
+        font-size: .75rem;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+    }
+    .portfolio-neutral-option {
+        position: relative;
+        margin: 0;
+        cursor: pointer;
+    }
+    .portfolio-neutral-option input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+    .portfolio-neutral-option span {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2.2rem;
+        padding: .45rem .8rem;
+        border-radius: 999px;
+        color: var(--pf-text);
+        transition: background-color .16s ease, color .16s ease, box-shadow .16s ease;
+    }
+    .portfolio-neutral-option input:checked + span {
+        background: var(--pf-accent);
+        color: var(--pf-bg);
+        box-shadow: 0 .35rem 1rem rgba(0, 0, 0, .16);
+    }
+    .portfolio-neutral-option input:focus-visible + span {
+        outline: 2px solid var(--pf-accent);
+        outline-offset: 2px;
+    }
+
+    @media (min-width: 768px) {
+        .portfolio-header-controls {
+            width: auto;
+        }
+    }

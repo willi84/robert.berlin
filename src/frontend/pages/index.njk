@@ -35,7 +35,8 @@ menu:
                 title: "Robert Willemelis",
                 subtitle: "Projekte, Hackathons, Konferenzen und Workshops.",
                 state: "in Arbeit",
-                views: [{ key: 'cards', label: '▦ Cards'}, { key: 'list', label: '☰ Liste' }]
+                views: [{ key: 'cards', label: '▦ Cards'}, { key: 'list', label: '☰ Liste' }],
+                neutral_toggle: true
             })
         }}
         {% set upcomingEvents = all.data | getUpcomingEvents(build.now) %}
@@ -43,7 +44,7 @@ menu:
             
     <nav class="portfolio-toolbar mb-4  z-2 position-relative" aria-label="Portfolio Filter">
         <div class="row g-3 align-items-center">
-            <div class="col-12 col-lg-8">
+            <div class="col-12 col-lg-7">
                 {{
                     component("search", {
                         label: "Portfolio durchsuchen",
